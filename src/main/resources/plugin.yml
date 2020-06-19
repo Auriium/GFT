@@ -1,0 +1,11 @@
+name: ${project.name}
+version: ${project.version}
+author: magicmq
+main: dev.magicmq.duels.Duels
+depend: [SlimeWorldManager, Vault]
+commands:
+  duels:
+    description: The main command for Duels.
+    aliases: []
+  duelskit:
+    description: Used to create and delete kits for Duels.

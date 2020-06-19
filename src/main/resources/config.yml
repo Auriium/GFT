@@ -1,0 +1,128 @@
+database:
+  host: 172.17.0.1
+  port: 3306
+  database: s9_minecraft
+  username: 'u9_xDLlKuDmnO'
+  password: 'blQ.DH^kdwRnuw!p+wNiIf62'
+autosave-interval: 5
+#The length of each square side of the world border
+world-border-size: 200
+pre-game-time: 30
+game-time: 300
+post-game-time: 10
+spawn-point: 'world:0.5:64:0:0:30'
+queue-gui:
+  settings:
+    slots: 9
+    name: '&9&lPick a Queue:'
+    filler-slots: '0,1,2,6,7'
+  filler:
+    item: 'STAINED_GLASS_PANE:1 1'
+    action: 'none'
+    glow: false
+    display-name: '&6&lClick on a queue to join.'
+  1v1:
+    item: 'IRON_SWORD 1'
+    action: 'queue_1v1'
+    slot: 3
+    glow: true
+    display-name: '&f&lClick to queue for a 1v1 game.'
+    lore:
+      - '&fYou will be placed against one other player.'
+  2v2:
+    item: 'GOLD_SWORD 1'
+    action: 'queue_2v2'
+    slot: 4
+    glow: true
+    display-name: '&6&lClick to queue for a 2v2 game.'
+    lore:
+      - '&6Played in teams of two.'
+  3v3:
+    item: 'DIAMOND_SWORD 1'
+    action: 'queue_3v3'
+    slot: 5
+    glow: true
+    display-name: '&b&lClick to queue for a 3v3 game.'
+    lore:
+      - '&bPlayed in teams of three.'
+  close:
+    item: 'STAINED_GLASS_PANE:14 1'
+    action: 'close'
+    slot: '8'
+    glow: false
+    display-name: '&c&lClick to close GUI'
+kit-gui:
+  settings:
+    slots: 27
+    name: '&9&lKits'
+    filler-slots: '0,1,2,3,4,5,6,7,8,9,17,18,19,20,21,22,23,24,25,26'
+  filler:
+    item: 'STAINED_GLASS_PANE:1 1'
+    action: 'none'
+    glow: false
+    display-name: '&6&lPick a kit.'
+  test1:
+    item: 'DIAMOND_BLOCK 1'
+    action: 'test1'
+    slot: 10
+    glow: false
+    name: '&b&lTest Kit 1'
+    lore:
+      - '&bThis kit contains...'
+  test2:
+    item: 'IRON_BLOCK 1'
+    action: 'test2'
+    slot: 11
+    glow: false
+    name: '&b&lTest Kit 2'
+    lore:
+      - '&bThis kit contains...'
+  test3:
+    item: 'EMERALD_BLOCK 1'
+    action: 'test3'
+    slot: 12
+    glow: false
+    name: '&b&lTest Kit 3'
+    lore:
+      - '&bThis kit contains...'
+  test4:
+    item: 'GOLD_BLOCK 1'
+    action: 'test4'
+    slot: 13
+    glow: true
+    name: '&b&lTest Kit 4'
+    lore:
+      - '&bThis kit contains...'
+kit-selection-gui-name: '&9&lPick a kit:'
+messages:
+  plugin-prefix: '&7GFTactics &9> &r'
+  command-in-game: '&cSorry, you are not allowed to run commands while in game.'
+  kit-purchase: '&aYou have sucessfully purchased the &6%kit% &akit. Enjoy!'
+  purchase-not-enough-money: '&cSorry, you do not have enough money to purchase this kit. The cost is &6$%cost%&a.'
+  already-purchased: '&cYou already have access to this kit.'
+  not-purchasable: '&cSorry, this kit is not purchasable.'
+  no-kit-access: '&cYou do not have access to this kit! If it has a price, you may purchase it to use it.'
+  queue-in-game: '&cYou cannot queue for a game while currently in a game.'
+  game-created: '&aEnough players have joined the queue! Creating a game for you...'
+  already-in-queue: '&cYou are already in the queue for this duel type.'
+  action-bar:
+    pre-game: '&aThe game will begin in &e%time%&a!'
+    game: '&aThere is &e%time% &aleft until the game ends!'
+    post-game: '&aThe game has ended. You will be teleported back to spawn in &e%time%&a.'
+  died-1v1: '&aYou lost the match! Better luck next time.'
+  killed-player-1v1: '&aYou defeated your opponent! Congratulations on the win.'
+  died: '&aYou died! There are %amount% players left on your team. You have entered spectator mode to observe the match.'
+  died-other: '&6%player%&a, who was on your team, just died. There are %amount% players left on your team.'
+  killed-player: '&aYou killed a player! The enemy team has %amount% players left on their team.'
+  win-match:
+    - '&aYou won the match! Congratulations on the win.'
+    - '&aYou have now played &a%matches% total matches, and'
+    - '&ahave &6%wins% &atotal wins.'
+    - '&aYou have &6%kills% &akills and &6%deaths% &adeaths.'
+  lose-match:
+    - '&aYou lost the match. Better luck next time!'
+    - '&aYou have now played &a%matches% total matches, and'
+    - '&ahave &6%wins% &atotal wins.'
+    - '&aYou have &6%kills% &akills and &6%deaths% &adeaths.'
+  player-quit: '&aA player on the enemy team quit the game! There are &6%amount% &aplayers left on the enemy team.'
+
