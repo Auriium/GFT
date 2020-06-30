@@ -14,6 +14,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
@@ -163,7 +164,6 @@ public class Duel {
         player.asBukkitPlayer().setGameMode(GameMode.SPECTATOR);
 
         if (player.asBukkitPlayer().getKiller() != null) {
-            System.out.println("Killer is not null!");
             DuelsPlayer killer = PlayerController.get().getDuelsPlayer(player.asBukkitPlayer().getKiller());
             killer.setKills(killer.getKills() + 1);
             if (type != DuelType.ONE_V_ONE) {
@@ -181,7 +181,7 @@ public class Duel {
 
         playersDisplay.put(player, player.getTeam().getDisplayColor() + "" + ChatColor.STRIKETHROUGH + "⬛ " + player.asBukkitPlayer().getName());
 
-        if (type != DuelType.ONE_V_ONE) {
+        if (type != DuelType.ONE_V_ONE)
             player.sendMessage(PluginConfig.getMessage("died")
                     .replace("%amount%", "" + getAlivePlayers(player.getTeam())));
 
@@ -197,7 +197,6 @@ public class Duel {
             getPlayers(player.getTeam()).stream().filter(toMessage -> !toMessage.equals(player)).forEach(toMessage -> toMessage.asBukkitPlayer().sendMessage(PluginConfig.getMessage("died-other")
                     .replace("%player%", player.asBukkitPlayer().getName())
                     .replace("%amount%", "" + getAlivePlayers(player.getTeam()))));
-        }
     }
 
     public void startGame() {
@@ -217,6 +216,19 @@ public class Duel {
                 player.sendMessage(PluginConfig.getMessage("default-kit")
                         .replace("%kit%", KitsController.get().getDefaultKit().getName()));
             }
+
+            ItemStack[] armor = player.asBukkitPlayer().getInventory().getArmorContents();
+            for (ItemStack item : armor) {
+                if (item != null && (item.getType() == Material.LEATHER_HELMET
+                    || item.getType() == Material.LEATHER_CHESTPLATE
+                    || item.getType() == Material.LEATHER_LEGGINGS
+                    || item.getType() == Material.LEATHER_BOOTS)) {
+                    LeatherArmorMeta meta = (LeatherArmorMeta) armor[0].getItemMeta();
+                    meta.setColor(player.getTeam().getArmorColor());
+                    item.setItemMeta(meta);
+                }
+            }
+            player.asBukkitPlayer().getInventory().setArmorContents(armor);
 
             ScoreboardController.get().changePlayer(player);
 
@@ -380,15 +392,17 @@ public class Duel {
 
     public enum Team {
 
-        ONE("Red", ChatColor.RED),
-        TWO("Blue", ChatColor.BLUE);
+        ONE("Red", ChatColor.RED, Color.fromRGB(255, 0, 0)),
+        TWO("Blue", ChatColor.BLUE, Color.fromRGB(0, 0, 255));
 
         private final String displayName;
         private final ChatColor displayColor;
+        private final Color armorColor;
 
-        Team(String displayName, ChatColor displayColor) {
+        Team(String displayName, ChatColor displayColor, Color armorColor) {
             this.displayName = displayName;
             this.displayColor = displayColor;
+            this.armorColor = armorColor;
         }
 
         public String getDisplayName() {
@@ -397,6 +411,10 @@ public class Duel {
 
         public ChatColor getDisplayColor() {
             return displayColor;
+        }
+
+        public Color getArmorColor() {
+            return armorColor;
         }
     }
 }

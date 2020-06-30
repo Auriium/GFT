@@ -81,6 +81,7 @@ public class KitsController {
                 } else {
                     if (!purchaseKit(player, kit)) {
                         player.sendMessage(PluginConfig.getMessage("no-kit-access"));
+                        player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
                     } else {
                         player.setSelectedKit(kit);
                         player.sendMessage(PluginConfig.getMessage("kit-selected")
@@ -92,10 +93,10 @@ public class KitsController {
                     purchaseKit(player, kit);
                 } else {
                     player.sendMessage(PluginConfig.getMessage("already-have-access"));
+                    player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
                 }
             }
             player.asBukkitPlayer().closeInventory();
-            player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
         }
     }
 
@@ -106,7 +107,7 @@ public class KitsController {
                 player.addUnlockedKit(kit.getName());
                 player.sendMessage(PluginConfig.getMessage("kit-purchase")
                         .replace("%kit%", kit.getName()));
-                player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.ENTITY_PLAYER_LEVELUP, PluginConfig.getSoundVolume(), 1f);
+                player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.ENTITY_PLAYER_LEVELUP, PluginConfig.getSoundVolume(), 2f);
                 return true;
             } else {
                 player.sendMessage(PluginConfig.getMessage("purchase-not-enough-money")
