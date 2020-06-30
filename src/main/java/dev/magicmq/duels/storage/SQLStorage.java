@@ -42,31 +42,12 @@ public class SQLStorage {
         gson = new Gson();
     }
 
-    public void shutdown() throws SQLException {
+    public void shutdown() {
         for (DuelsPlayer player : PlayerController.get().getPlayers()) {
-            String sql = "INSERT INTO `duels_player` ";
-            sql += "(`player_uuid`, `kills`, `deaths`, `wins`, `games_played`, `losses`, `shots_fired`, `unlocked_kits`) ";
-            sql += "VALUES (?, ?, ?, ?, ?, ?, ?) ";
-            sql += "ON DUPLICATE KEY UPDATE ";
-            sql += "`kills` = ?, `deaths` = ?, `wins` = ?, `games_played` = ?, `losses` = ?, `shots_fired` = ?, `unlocked_kits` = ?;";
-            Object[] toSet = new Object[]{
-                    player.asBukkitPlayer().getUniqueId().toString(),
-                    player.getKills(),
-                    player.getDeaths(),
-                    player.getWins(),
-                    player.getGamesPlayed(),
-                    player.getLosses(),
-                    player.getShotsFired(),
-                    gson.toJson(player.getUnlockedKits()),
-                    player.getKills(),
-                    player.getDeaths(),
-                    player.getWins(),
-                    player.getGamesPlayed(),
-                    player.getLosses(),
-                    player.getShotsFired(),
-                    gson.toJson(player.getUnlockedKits())
-            };
-            database.update(sql, toSet);
+            if (player.isInDatabase())
+                updatePlayer(player, false);
+            else
+                insertPlayer(player, false);
         }
         database.close();
     }
@@ -85,9 +66,11 @@ public class SQLStorage {
                             resultSet.getInt("games_played"),
                             resultSet.getInt("losses"),
                             resultSet.getInt("shots_fired"),
-                            gson.fromJson(resultSet.getString("unlocked_kits"), new TypeToken<ArrayList<String>>() {}.getType()));
+                            resultSet.getInt("shots_hit"),
+                            gson.fromJson(resultSet.getString("unlocked_kits"), new TypeToken<ArrayList<String>>() {}.getType()),
+                            true);
                 } else {
-                    PlayerController.get().joinCallback(player, 0, 0, 0, 0, 0, 0, new ArrayList<>());
+                    PlayerController.get().joinCallback(player, 0, 0, 0, 0, 0, 0, 0, new ArrayList<>(), false);
                 }
             } catch (SQLException e) {
                 Duels.get().getLogger().log(Level.SEVERE, "Error when loading a player's data from the Duels SQL table! See this error:");
@@ -100,28 +83,55 @@ public class SQLStorage {
         });
     }
 
-    public void savePlayer(DuelsPlayer player) {
+    public void insertPlayer(DuelsPlayer player, boolean async) {
         String sql = "INSERT INTO `duels_player` ";
-        sql += "(`player_uuid`, `kills`, `deaths`, `wins`, `games_played`, `losses`, `shots_fired`) ";
-        sql += "VALUES (?, ?, ?, ?, ?, ?, ?) ";
-        sql += "ON DUPLICATE KEY UPDATE ";
-        sql += "`kills` = ?, `deaths` = ?, `wins` = ?, `games_played` = ?, `losses` = ?, `shots_fired` = ?;";
+        sql += "(`player_uuid`, `kills`, `deaths`, `wins`, `games_played`, `losses`, `shots_fired`, `shots_hit`, `unlocked_kits`) ";
+        sql += "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
         Object[] toSet = new Object[]{
-                player.asBukkitPlayer().getUniqueId().toString(),
+                player.getUniqueId().toString(),
                 player.getKills(),
                 player.getDeaths(),
                 player.getWins(),
                 player.getGamesPlayed(),
                 player.getLosses(),
                 player.getShotsFired(),
+                player.getShotsHit(),
+                gson.toJson(player.getUnlockedKits())
+
+        };
+        executeUpdate(player, sql, toSet, async);
+    }
+
+    public void updatePlayer(DuelsPlayer player, boolean async) {
+        String sql = "UPDATE `duels_player` SET ";
+        sql += "`kills` = ?, `deaths` = ?, `wins` = ?, `games_played` = ?, `losses` = ?, `shots_fired` = ?, `shots_hit` = ?, `unlocked_kits` = ? ";
+        sql += "WHERE `player_uuid` = ?;";
+        Object[] toSet = new Object[]{
                 player.getKills(),
                 player.getDeaths(),
                 player.getWins(),
                 player.getGamesPlayed(),
                 player.getLosses(),
-                player.getShotsFired()
+                player.getShotsFired(),
+                player.getShotsHit(),
+                gson.toJson(player.getUnlockedKits()),
+                player.getUniqueId().toString()
         };
-        database.updateAsync(sql, toSet, integer -> {});
+        executeUpdate(player, sql, toSet, async);
+    }
+
+    private void executeUpdate(DuelsPlayer player, String sql, Object[] toSet, boolean async) {
+        if (async)
+            database.updateAsync(sql, toSet, integer -> player.setInDatabase(true));
+        else {
+            try {
+                database.update(sql, toSet);
+                player.setInDatabase(true);
+            } catch (SQLException e) {
+                Duels.get().getLogger().log(Level.SEVERE, "There was an error when saving a player's data to the Duels SQL table! See this error:");
+                e.printStackTrace();
+            }
+        }
     }
 
     public static SQLStorage get() {

@@ -22,6 +22,30 @@ import java.util.stream.Collectors;
 
 public class ItemUtils {
 
+    public static String itemStackToBase64(ItemStack item) {
+        try {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(output);
+            dataOutput.writeObject(item);
+            dataOutput.close();
+            return Base64Coder.encodeLines(output.toByteArray());
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to serialize ItemStack.", e);
+        }
+    }
+
+    public static ItemStack base64ToItem(String base64) {
+        try {
+            ByteArrayInputStream input = new ByteArrayInputStream(Base64Coder.decodeLines(base64));
+            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(input);
+            ItemStack item = (ItemStack) dataInput.readObject();
+            dataInput.close();
+            return item;
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to deserialize ItemStack.", e);
+        }
+    }
+
     /**
      * Converts the player inventory to a String array of Base64 strings. First string is the content and second string is the armor.
      *
@@ -189,15 +213,17 @@ public class ItemUtils {
                 meta.setLore(config.getStringList("lore").stream().map((string) -> ChatColor.translateAlternateColorCodes('&', string)).collect(Collectors.toList()));
             }
         }
+        itemStack.setItemMeta(meta);
+
         if (config.contains("glow")) {
             boolean glow = config.getBoolean("glow");
             if (glow) {
-                itemStack.addEnchantment(Enchantment.SILK_TOUCH, 1);
+                meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
                 meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                itemStack.setItemMeta(meta);
+                itemStack.addUnsafeEnchantment(Enchantment.SILK_TOUCH, 1);
             }
         }
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        itemStack.setItemMeta(meta);
 
         if (config.contains("action")) {
             itemStack = NBTEditor.set(itemStack, config.getString("action"), "action");

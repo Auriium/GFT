@@ -1,16 +1,44 @@
+#Database information
 database:
-  host: 172.17.0.1
+  host: 127.0.0.1
   port: 3306
-  database: s9_minecraft
-  username: 'u9_xDLlKuDmnO'
-  password: 'blQ.DH^kdwRnuw!p+wNiIf62'
+  database: 'minecraft'
+  username: 'username'
+  password: 'password'
+#In minutes, the interval at which player data is autosaved to the SQL database. (A player's stats are also saved when a player finishes a game)
 autosave-interval: 5
+#The volume level of all sounds played
+sound-volume: 0.5
 #The length of each square side of the world border
-world-border-size: 200
+world-border-size: 100
+#In seconds, the time spent in the pre-game state, where the player selects a kit
 pre-game-time: 30
+#In seconds, the amount of time a game lasts
 game-time: 300
+#In seconds, the amount of time the post-game state lasts before players are returned to spawn and the game is shut down
 post-game-time: 10
-spawn-point: 'world:0.5:64:0:0:30'
+#The spawn point where players should be teleported on join and when they quit a game or a game ends
+spawn-point: 'world:55.5:4:-144.5:180:23'
+#The hub server name so that
+lobby-server-name: 'lobby'
+#Spawn points for each arena. If the game is a 1v1 or 2v2, only the first or first and second spawn point for each team will be used. Name should be matched to the template world name in the template_worlds folder
+game-spawns:
+  template_world:
+    team-one:
+      - '-27.5:42:-2.5:-90:10'
+      - '-27.5:42:0.5:-90:10'
+      - '-27.5:42:3.5:-90:10'
+    team-two:
+      - '33.5:38:-2.5:90:10'
+      - '33.5:38:0.5:90:10'
+      - '33.5:38:3.5:90:10'
+#Blocks that are allowed to be broken/placed in-game. All other blocks not in this list cannot be broken/destroyed.
+allowed-blocks:
+  - 'GLASS'
+#Commands that should be executed for players that win the game. Do not use a slash
+win-commands:
+  - 'eco give %player% 200'
+#Configuration for the queue GUI
 queue-gui:
   settings:
     slots: 9
@@ -46,83 +74,206 @@ queue-gui:
     lore:
       - '&bPlayed in teams of three.'
   close:
-    item: 'STAINED_GLASS_PANE:14 1'
+    item: 'BARRIER 1'
     action: 'close'
-    slot: '8'
+    slot: 8
     glow: false
     display-name: '&c&lClick to close GUI'
-kit-gui:
-  settings:
-    slots: 27
-    name: '&9&lKits'
-    filler-slots: '0,1,2,3,4,5,6,7,8,9,17,18,19,20,21,22,23,24,25,26'
-  filler:
-    item: 'STAINED_GLASS_PANE:1 1'
-    action: 'none'
+  leave-queue:
+    item: 'STAINED_GLASS_PANE:14 1'
+    action: 'queue_leave'
+    slot: 0
     glow: false
-    display-name: '&6&lPick a kit.'
-  test1:
-    item: 'DIAMOND_BLOCK 1'
-    action: 'test1'
-    slot: 10
-    glow: false
-    name: '&b&lTest Kit 1'
-    lore:
-      - '&bThis kit contains...'
-  test2:
-    item: 'IRON_BLOCK 1'
-    action: 'test2'
-    slot: 11
-    glow: false
-    name: '&b&lTest Kit 2'
-    lore:
-      - '&bThis kit contains...'
-  test3:
-    item: 'EMERALD_BLOCK 1'
-    action: 'test3'
-    slot: 12
-    glow: false
-    name: '&b&lTest Kit 3'
-    lore:
-      - '&bThis kit contains...'
-  test4:
-    item: 'GOLD_BLOCK 1'
-    action: 'test4'
-    slot: 13
+    display-name: '&c&lClick to exit the queue you are in.'
+#The name of the Kits Shop/Selection GUI
+kits-gui-name: '&9&lKits'
+#The default kit, used if a player does not select a kit before starting a game. Make sure that everyone has access to this kit!
+default-kit: 'Test1'
+#Items in the player's hotbar while in the spawn (not in a game)
+spawn-hotbar:
+  0:
+    item: 'DIAMOND_SWORD 1'
+    action: 'queue'
     glow: true
-    name: '&b&lTest Kit 4'
-    lore:
-      - '&bThis kit contains...'
-kit-selection-gui-name: '&9&lPick a kit:'
+    display-name: '&6&lQueue For A Game'
+  1:
+    item: 'MAGMA_CREAM 1'
+    action: 'kit'
+    glow: false
+    display-name: '&6&lShow Kits'
+  8:
+    item: 'BARRIER 1'
+    action: 'lobby'
+    glow: false
+    display-name: '&6&lBack to Lobby'
+#Items in the player's hotbar while in the pre-game state (the game countdown)
+pre-game-hotbar:
+  0:
+    item: 'MAGMA_CREAM 1'
+    action: 'kit'
+    glow: false
+    display-name: '&6&lShow Kits'
+  8:
+    item: 'BARRIER 1'
+    action: 'quit'
+    glow: false
+    display-name: '&6&lExit Game'
+#Items in the player's hotbar after they die in a game and move into spectate mode
+spectate-hotbar:
+  0:
+    item: 'BARRIER 1'
+    action: 'quit'
+    glow: false
+    display-name: '&6&lExit Game'
 messages:
   plugin-prefix: '&7GFTactics &9> &r'
+  left-during-delay: '&cSorry, a player left while a game was being created, so the game was cancelled. Please re-queue.'
+  queue-join: '&aYou are now queueing for a &6%queue% &agame.'
+  queue-leave: '&aYou left the &6%queue% &aqueue.'
+  not-in-queue: '&aYou are not queueing for any game right now.'
+  already-in-queue: '&cYou are already in the &6%queue% &cqueue.'
+  player-joined-queue: '&6%player% &ahas joined the queue!'
   command-in-game: '&cSorry, you are not allowed to run commands while in game.'
   kit-purchase: '&aYou have sucessfully purchased the &6%kit% &akit. Enjoy!'
   purchase-not-enough-money: '&cSorry, you do not have enough money to purchase this kit. The cost is &6$%cost%&a.'
-  already-purchased: '&cYou already have access to this kit.'
+  already-have-access: '&cYou already have access to this kit.'
   not-purchasable: '&cSorry, this kit is not purchasable.'
-  no-kit-access: '&cYou do not have access to this kit! If it has a price, you may purchase it to use it.'
+  no-kit-access: '&cPlease select a different kit.'
+  kit-selected: '&aYou selected the &e%kit% &akit. Have fun!'
+  default-kit: '&aYou did not select a kit, so you have been given the &e%kit% &akit (default).'
   queue-in-game: '&cYou cannot queue for a game while currently in a game.'
-  game-created: '&aEnough players have joined the queue! Creating a game for you...'
-  already-in-queue: '&cYou are already in the queue for this duel type.'
-  action-bar:
-    pre-game: '&aThe game will begin in &e%time%&a!'
-    game: '&aThere is &e%time% &aleft until the game ends!'
-    post-game: '&aThe game has ended. You will be teleported back to spawn in &e%time%&a.'
-  died-1v1: '&aYou lost the match! Better luck next time.'
-  killed-player-1v1: '&aYou defeated your opponent! Congratulations on the win.'
+  game-created: '&aEnough players have joined the queue! Creating a game for you. Please wait...'
+  entered-game: '&aYou have been teleported to your game! You are on the %team% &ateam. There will be a countdown until the game starts. Make sure to select a kit!'
+  entered-game-1v1: '&aYou have been teleported to your game! There will be a countdown until the game starts. Make sure to select a kit!'
+  not-in-game: '&cYou are not in a game!'
+  quit-game: '&aYou quit the game.'
+  pre-game-countdown:
+    10: '&aThe game will begin in &610 seconds&a!'
+    9: '&aThe game will begin in &69 seconds&a!'
+    8: '&aThe game will begin in &68 seconds&a!'
+    7: '&aThe game will begin in &67 seconds&a!'
+    6: '&aThe game will begin in &66 seconds&a!'
+    5: '&aThe game will begin in &65 seconds&a!'
+    4: '&aThe game will begin in &64 seconds&a!'
+    3: '&aThe game will begin in &63 seconds&a!'
+    2: '&aThe game will begin in &62 seconds&a!'
+    1: '&aThe game will begin in &61 second&a!'
+  game-countdown:
+    240: '&aThere are &64 minutes &aleft in the game!'
+    180: '&aThere are &63 minutes &aleft in the game!'
+    120: '&aThere are &62 minutes &aleft in the game!'
+    60: '&aThere is &61 minute &aleft in the game!'
+    30: '&aThere are &630 seconds &aleft in the game!'
+    15: '&aThere are &615 seconds &aleft in the game!'
+    10: '&aThere are &610 seconds &aleft in the game!'
+    9: '&aThere are &69 seconds &aleft in the game!'
+    8: '&aThere are &68 seconds &aleft in the game!'
+    7: '&aThere are &67 seconds &aleft in the game!'
+    6: '&aThere are &66 seconds &aleft in the game!'
+    5: '&aThere are &65 seconds &aleft in the game!'
+    4: '&aThere are &64 seconds &aleft in the game!'
+    3: '&aThere are &63 seconds &aleft in the game!'
+    2: '&aThere are &62 seconds &aleft in the game!'
+    1: '&aThere is &61 second &aleft in the game!'
+  post-game-countdown:
+    10: '&aYou will be teleported back to spawn in &610 seconds'
+    5: '&aYou will be teleported back to spawn in &65 seconds'
+    4: '&aYou will be teleported back to spawn in &64 seconds'
+    3: '&aYou will be teleported back to spawn in &63 seconds'
+    2: '&aYou will be teleported back to spawn in &62 seconds'
+    1: '&aYou will be teleported back to spawn in &61 second'
   died: '&aYou died! There are %amount% players left on your team. You have entered spectator mode to observe the match.'
   died-other: '&6%player%&a, who was on your team, just died. There are %amount% players left on your team.'
-  killed-player: '&aYou killed a player! The enemy team has %amount% players left on their team.'
+  killed-player: '&aYou killed &6%player%&a! The enemy team has &6%amount% &aplayers left on their team.'
   win-match:
+    - '&7&m-----------------------------------------------------'
+    - ''
     - '&aYou won the match! Congratulations on the win.'
-    - '&aYou have now played &a%matches% total matches, and'
-    - '&ahave &6%wins% &atotal wins.'
-    - '&aYou have &6%kills% &akills and &6%deaths% &adeaths.'
+    - '&aYou have now played &a%gamesplayed% total matches,'
+    - '&6%wins% &atotal wins, and &6%losses% &atotal losses.'
+    - '&aYou have &6%kills% &atotal kills and &6%deaths% &atotal deaths.'
+    - ''
+    - '&7&m-----------------------------------------------------'
   lose-match:
+    - '&7&m-----------------------------------------------------'
+    - ''
     - '&aYou lost the match. Better luck next time!'
-    - '&aYou have now played &a%matches% total matches, and'
-    - '&ahave &6%wins% &atotal wins.'
-    - '&aYou have &6%kills% &akills and &6%deaths% &adeaths.'
+    - '&aYou have now played &a%gamesplayed% total matches'
+    - '&6%wins% &atotal wins, and &6%losses% &atotal losses.'
+    - '&aYou have &6%kills% &atotal kills and &6%deaths% &atotal deaths.'
+    - ''
+    - '&7&m-----------------------------------------------------'
+  no-winner:
+    - '&7&m-----------------------------------------------------'
+    - ''
+    - '&aThere were no winners this round.'
+    - '&aYou have now played &a%gamesplayed% total matches'
+    - '&6%wins% &atotal wins, and &6%losses% &atotal losses.'
+    - '&aYou have &6%kills% &atotal kills and &6%deaths% &atotal deaths.'
+    - ''
+    - '&7&m-----------------------------------------------------'
   player-quit: '&aA player on the enemy team quit the game! There are &6%amount% &aplayers left on the enemy team.'
+scoreboards:
+  title: '&e&lGunfight Tactics'
+  spawn:
+    - '&7&m--------------------&7'
+    - ''
+    - '&c&lYour Stats'
+    - '&7» Money: &f$%money%'
+    - '&7» Kills: &f%kills%'
+    - '&7» Wins: &f%wins%'
+    - ' '
+    - '&c&lQueue Stats'
+    - '&7» Queue Type: &f%queue%'
+    - '&7» Queue Players: &f%playersinqueue% / %playersneeded%'
+    - '&7» Time in Queue: &f%timequeueing%'
+    - '  '
+    - '&7&m--------------------&1'
+  pre-game-1v1:
+    - '&7&m--------------------&7'
+    - ''
+    - '&c&lMatch Stats'
+    - '&7» Countdown: &c%time%'
+    - '&7» Map Name: &f%map%'
+    - ' '
+    - '&c&lYour Stats'
+    - '&7» Money: &f$%money%'
+    - '&7» Your Loadout: &f%kit%'
+    - '  '
+    - '&7&m--------------------&1'
+  pre-game-team:
+    - '&7&m--------------------&7'
+    - ''
+    - '&c&lMatch Stats'
+    - '&7» Countdown: &c%time%'
+    - '&7» Map Name: &f%map%'
+    - ' '
+    - '&c&lYour Stats'
+    - '&7» Money: &f$%money%'
+    - '&7» Your Loadout: &f%kit%'
+    - '&7» Your Team: %team%'
+    - '  '
+    - '&7&m--------------------&1'
+  game-1v1:
+    - '&7&m--------------------&7'
+    - ''
+    - '&c&lMatch Stats'
+    - '&7» Time Left: %time%'
+    - ' '
+    - '&c&lPlayers'
+    - '%players%'
+    - '  '
+    - '&7&m--------------------&1'
+  game-team:
+    - '&7&m--------------------&7'
+    - ''
+    - '&c&lMatch Stats'
+    - '&7» Time Left: %time%'
+    - '&7» Your Team: %team%'
+    - ' '
+    - '&c&lPlayers'
+    - '%players%'
+    - '  '
+    - '&7&m--------------------&1'
+
 

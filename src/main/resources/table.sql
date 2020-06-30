@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS `duels_player` (
     `games_played`  INT(4)       NOT NULL,
     `losses`        INT(4)       NOT NULL,
     `shots_fired`   INT(4)       NOT NULL,
+    `shots_hit`     INT(4)       NOT NULL,
     `unlocked_kits` VARCHAR(100) NOT NULL,
 PRIMARY KEY (`player_id`),
 KEY (`player_uuid`)

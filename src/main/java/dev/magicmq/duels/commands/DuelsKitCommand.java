@@ -17,11 +17,19 @@ public class DuelsKitCommand implements CommandExecutor {
                 if (args.length > 0) {
                     if (args.length > 1) {
                         if (args[0].equalsIgnoreCase("create")) {
-                            KitsController.get().createNewKit(player, args[1]);
-                        } else if (args[1].equalsIgnoreCase("delete")) {
+                            if (args.length > 3) {
+                                try {
+                                    KitsController.get().createNewKit(player, args[1], Double.parseDouble(args[2]), args[3]);
+                                } catch (NumberFormatException e) {
+                                    sender.sendMessage(ChatColor.RED + "The kit cost must be a number!");
+                                }
+                            } else {
+                                sender.sendMessage(ChatColor.RED + "Usage: /duelskit create <kitname> <cost> <permission>");
+                            }
+                        } else if (args[0].equalsIgnoreCase("delete")) {
                             KitsController.get().deleteKit(player, args[1]);
                         } else {
-                            sender.sendMessage(ChatColor.RED + "Usage: /duelskit <create/delete> [kitname]");
+                            sender.sendMessage(ChatColor.RED + "Usage: /duelskit <create/delete> [kitname] [cost] [permission]");
                         }
                     } else {
                         sender.sendMessage(ChatColor.RED + "You must specify a kit name! Usage: /duelskit <create/delete> [kitname]");

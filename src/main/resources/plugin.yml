@@ -9,3 +9,5 @@ commands:
     aliases: []
   duelskit:
     description: Used to create and delete kits for Duels.
+  quit:
+    description: Quit a duels game
