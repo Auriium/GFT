@@ -339,10 +339,6 @@ public class Duel {
         }
     }
 
-    public HashSet<DuelsPlayer> getPlayers() {
-        return players;
-    }
-
     public HashSet<DuelsPlayer> getPlayers(Team team) {
         HashSet<DuelsPlayer> players = new HashSet<>();
         for (DuelsPlayer player : this.players) {
