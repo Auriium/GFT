@@ -1,14 +1,13 @@
 package dev.magicmq.duels.config;
 
 import dev.magicmq.duels.Duels;
-import dev.magicmq.duels.controllers.game.Duel;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;

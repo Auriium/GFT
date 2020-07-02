@@ -7,6 +7,7 @@ import io.github.bananapuncher714.nbteditor.NBTEditor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -152,10 +153,10 @@ public class KitsController {
         }
     }
 
-    public void deleteKit(Player player, String name) {
+    public void deleteKit(CommandSender sender, String name) {
         Kit kit = getKitByName(name);
         if (kit == null) {
-            player.sendMessage(ChatColor.RED + "No kit was found with the name: " + name);
+            sender.sendMessage(ChatColor.RED + "No kit was found with the name: " + name);
             return;
         }
         config.set(name, null);
@@ -163,9 +164,9 @@ public class KitsController {
             config.save(configFile);
             kits.remove(kit);
             kitsInventory.remove(kit.getGuiRepresentation());
-            player.sendMessage(ChatColor.GREEN + "Kit " + name + " was successfully deleted.");
+            sender.sendMessage(ChatColor.GREEN + "Kit " + name + " was successfully deleted.");
         } catch (IOException e) {
-            player.sendMessage(ChatColor.RED + "There was an error when deleting this kit from the kits.yml file! See the console for details.");
+            sender.sendMessage(ChatColor.RED + "There was an error when deleting this kit from the kits.yml file! See the console for details.");
             e.printStackTrace();
         }
     }
@@ -190,6 +191,10 @@ public class KitsController {
 
     public Kit getDefaultKit() {
         return defaultKit;
+    }
+
+    public Collection<Kit> getKits() {
+        return kits;
     }
 
     public static KitsController get() {

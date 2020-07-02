@@ -1,10 +1,8 @@
 package dev.magicmq.duels;
 
 import dev.magicmq.duels.commands.DuelsCommand;
-import dev.magicmq.duels.commands.DuelsKitCommand;
 import dev.magicmq.duels.commands.QuitCommand;
 import dev.magicmq.duels.config.PluginConfig;
-import dev.magicmq.duels.controllers.game.DuelType;
 import dev.magicmq.duels.controllers.kits.KitsController;
 import dev.magicmq.duels.controllers.QueueController;
 import dev.magicmq.duels.controllers.game.DuelController;
@@ -64,7 +62,6 @@ public class Duels extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new PluginListener(), this);
 
         getCommand("duels").setExecutor(new DuelsCommand());
-        getCommand("duelskit").setExecutor(new DuelsKitCommand());
         getCommand("quit").setExecutor(new QuitCommand());
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {

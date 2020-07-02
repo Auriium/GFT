@@ -28,7 +28,7 @@ public class SQLStorage {
                 .withPluginUsing(Duels.get())
                 .withUsername(config.getString("username"))
                 .withPassword(config.getString("password"))
-                .withConnectionInfo(config.getString("host"), config.getInt("port"), config.getString("database"))
+                .withConnectionInfo(config.getString("host"), config.getInt("port"), config.getString("database"), false)
                 .withDefaultProperties()
                 .open();
 
@@ -56,29 +56,20 @@ public class SQLStorage {
         String sql = "SELECT * FROM `duels_player` ";
         sql += "WHERE `player_uuid` = ?;";
         database.queryAsync(sql, new Object[]{player.getUniqueId().toString()}, resultSet -> {
-            try {
-                if (resultSet.next()) {
-                    PlayerController.get().joinCallback(
-                            player,
-                            resultSet.getInt("kills"),
-                            resultSet.getInt("deaths"),
-                            resultSet.getInt("wins"),
-                            resultSet.getInt("games_played"),
-                            resultSet.getInt("losses"),
-                            resultSet.getInt("shots_fired"),
-                            resultSet.getInt("shots_hit"),
-                            gson.fromJson(resultSet.getString("unlocked_kits"), new TypeToken<ArrayList<String>>() {}.getType()),
-                            true);
-                } else {
-                    PlayerController.get().joinCallback(player, 0, 0, 0, 0, 0, 0, 0, new ArrayList<>(), false);
-                }
-            } catch (SQLException e) {
-                Duels.get().getLogger().log(Level.SEVERE, "Error when loading a player's data from the Duels SQL table! See this error:");
-                e.printStackTrace();
-            } finally {
-                try {
-                    resultSet.close();
-                } catch (SQLException ignored) {}
+            if (resultSet.next()) {
+                PlayerController.get().joinCallback(
+                        player,
+                        resultSet.getInt("kills"),
+                        resultSet.getInt("deaths"),
+                        resultSet.getInt("wins"),
+                        resultSet.getInt("games_played"),
+                        resultSet.getInt("losses"),
+                        resultSet.getInt("shots_fired"),
+                        resultSet.getInt("shots_hit"),
+                        gson.fromJson(resultSet.getString("unlocked_kits"), new TypeToken<ArrayList<String>>() {}.getType()),
+                        true);
+            } else {
+                PlayerController.get().joinCallback(player, 0, 0, 0, 0, 0, 0, 0, new ArrayList<>(), false);
             }
         });
     }
@@ -97,7 +88,6 @@ public class SQLStorage {
                 player.getShotsFired(),
                 player.getShotsHit(),
                 gson.toJson(player.getUnlockedKits())
-
         };
         executeUpdate(player, sql, toSet, async);
     }
