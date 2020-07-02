@@ -251,6 +251,7 @@ public class Duel {
     }
 
     public void endGame(Team winner) {
+        preGameTime = 0;
         gameTime = 0;
         ended = true;
 

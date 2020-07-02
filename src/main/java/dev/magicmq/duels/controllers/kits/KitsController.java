@@ -81,7 +81,7 @@ public class KitsController {
                     player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.ENTITY_PLAYER_LEVELUP, PluginConfig.getSoundVolume(), 1f);
                 } else {
                     if (!purchaseKit(player, kit)) {
-                        player.sendMessage(PluginConfig.getMessage("no-kit-access"));
+                        //player.sendMessage(PluginConfig.getMessage("no-kit-access"));
                         player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
                     } else {
                         player.setSelectedKit(kit);
