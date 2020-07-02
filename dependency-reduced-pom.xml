@@ -46,6 +46,10 @@
               <pattern>com.zaxxer.hikari</pattern>
               <shadedPattern>dev.magicmq.duels.libs.hikari</shadedPattern>
             </relocation>
+            <relocation>
+              <pattern>dev.magicmq.rappu</pattern>
+              <shadedPattern>dev.magicmq.duels.libs.rappu</shadedPattern>
+            </relocation>
           </relocations>
         </configuration>
       </plugin>
