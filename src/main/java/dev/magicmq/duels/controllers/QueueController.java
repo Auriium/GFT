@@ -69,12 +69,16 @@ public class QueueController {
                     player.sendMessage(PluginConfig.getMessage("queue-leave")
                             .replace("%queue%", type.getDisplayName()));
                     player.sendMessage(PluginConfig.getMessage("queue-join")
-                            .replace("%queue%", DuelType.ONE_V_ONE.getDisplayName()));
+                            .replace("%queue%", DuelType.ONE_V_ONE.getDisplayName())
+                            .replace("%players%", "" + (getNumberInQueue(DuelType.ONE_V_ONE) + 1))
+                            .replace("%maxplayers%", "" + (DuelType.ONE_V_ONE.getMaxPlayers())));
                     addPlayerToQueue(player, DuelType.ONE_V_ONE);
                 }
             } else {
                 player.sendMessage(PluginConfig.getMessage("queue-join")
-                        .replace("%queue%", DuelType.ONE_V_ONE.getDisplayName()));
+                        .replace("%queue%", DuelType.ONE_V_ONE.getDisplayName())
+                        .replace("%players%", "" + (getNumberInQueue(DuelType.ONE_V_ONE) + 1))
+                        .replace("%maxplayers%", "" + (DuelType.ONE_V_ONE.getMaxPlayers())));
                 addPlayerToQueue(player, DuelType.ONE_V_ONE);
             }
             player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
@@ -88,12 +92,16 @@ public class QueueController {
                     player.sendMessage(PluginConfig.getMessage("queue-leave")
                             .replace("%queue%", type.getDisplayName()));
                     player.sendMessage(PluginConfig.getMessage("queue-join")
-                            .replace("%queue%", DuelType.TWO_V_TWO.getDisplayName()));
+                            .replace("%queue%", DuelType.TWO_V_TWO.getDisplayName())
+                            .replace("%players%", "" + (getNumberInQueue(DuelType.TWO_V_TWO) + 1))
+                            .replace("%maxplayers%", "" + (DuelType.TWO_V_TWO.getMaxPlayers())));
                     addPlayerToQueue(player, DuelType.TWO_V_TWO);
                 }
             } else {
                 player.sendMessage(PluginConfig.getMessage("queue-join")
-                        .replace("%queue%", DuelType.TWO_V_TWO.getDisplayName()));
+                        .replace("%queue%", DuelType.TWO_V_TWO.getDisplayName())
+                        .replace("%players%", "" + (getNumberInQueue(DuelType.TWO_V_TWO) + 1))
+                        .replace("%maxplayers%", "" + (DuelType.TWO_V_TWO.getMaxPlayers())));
                 addPlayerToQueue(player, DuelType.TWO_V_TWO);
             }
             player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
@@ -107,12 +115,16 @@ public class QueueController {
                     player.sendMessage(PluginConfig.getMessage("queue-leave")
                             .replace("%queue%", type.getDisplayName()));
                     player.sendMessage(PluginConfig.getMessage("queue-join")
-                            .replace("%queue%", DuelType.THREE_V_THREE.getDisplayName()));
+                            .replace("%queue%", DuelType.THREE_V_THREE.getDisplayName())
+                            .replace("%players%", "" + (getNumberInQueue(DuelType.THREE_V_THREE) + 1))
+                            .replace("%maxplayers%", "" + (DuelType.THREE_V_THREE.getMaxPlayers())));
                     addPlayerToQueue(player, DuelType.THREE_V_THREE);
                 }
             } else {
                 player.sendMessage(PluginConfig.getMessage("queue-join")
-                        .replace("%queue%", DuelType.THREE_V_THREE.getDisplayName()));
+                        .replace("%queue%", DuelType.THREE_V_THREE.getDisplayName())
+                        .replace("%players%", "" + (getNumberInQueue(DuelType.THREE_V_THREE) + 1))
+                        .replace("%maxplayers%", "" + (DuelType.THREE_V_THREE.getMaxPlayers())));
                 addPlayerToQueue(player, DuelType.THREE_V_THREE);
             }
             player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
