@@ -11,11 +11,6 @@ import dev.magicmq.duels.controllers.player.PlayerController;
 import dev.magicmq.duels.storage.SQLStorage;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -57,6 +52,8 @@ public class Duels extends JavaPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
+
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
         SQLStorage.get();
         PlayerController.get();

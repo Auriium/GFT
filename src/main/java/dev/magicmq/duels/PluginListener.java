@@ -34,6 +34,7 @@ public class PluginListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         if (PlayerController.get().getDuelsPlayer(event.getPlayer()) == null) {
             PlayerController.get().playerJoined(event.getPlayer());
+            event.getPlayer().teleport(PluginConfig.getSpawnLocation());
         }
     }
 
