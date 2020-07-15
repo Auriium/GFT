@@ -275,7 +275,9 @@ public class Duel {
                                 .replace("%gamesplayed%", "" + player.getGamesPlayed())
                                 .replace("%losses%", "" + player.getLosses())
                                 .replace("%shotsfired%", "" + player.getShotsFired())
-                                .replace("%shotshit%", "" + player.getShotsHit());
+                                .replace("%shotshit%", "" + player.getShotsHit())
+                                .replace("%winningteam%", winner.getDisplayName())
+                                .replace("%losingteam%", winner == Team.ONE ? Team.TWO.displayName : Team.ONE.displayName);
                         player.sendMessage(string);
                     });
                     
