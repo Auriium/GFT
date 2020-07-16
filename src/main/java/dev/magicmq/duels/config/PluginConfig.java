@@ -101,6 +101,10 @@ public class PluginConfig {
         return ChatColor.translateAlternateColorCodes('&', config.getString("messages.plugin-prefix") + config.getString("messages." + key));
     }
 
+    public static String getBareMessage(String key) {
+        return ChatColor.translateAlternateColorCodes('&', config.getString("messages." + key));
+    }
+
     public static HashMap<Integer, String> getPreGameCountdown() {
         HashMap<Integer, String> messages = new HashMap<>();
         for (String key : config.getConfigurationSection("messages.pre-game-countdown").getKeys(false)) {
@@ -113,6 +117,14 @@ public class PluginConfig {
         HashMap<Integer, String> messages = new HashMap<>();
         for (String key : config.getConfigurationSection("messages.game-countdown").getKeys(false)) {
             messages.put(Integer.parseInt(key), ChatColor.translateAlternateColorCodes('&', config.getString("messages.plugin-prefix") + config.getString("messages.game-countdown." + key)));
+        }
+        return messages;
+    }
+
+    public static HashMap<Integer, String> getGameCountdownTitle() {
+        HashMap<Integer, String> messages = new HashMap<>();
+        for (String key : config.getConfigurationSection("messages.game-countdown-title").getKeys(false)) {
+            messages.put(Integer.parseInt(key), ChatColor.translateAlternateColorCodes('&', config.getString("messages.game-countdown-title." + key)));
         }
         return messages;
     }

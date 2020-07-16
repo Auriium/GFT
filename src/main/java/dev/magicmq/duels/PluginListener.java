@@ -120,10 +120,6 @@ public class PluginListener implements Listener {
                     if (player.asBukkitPlayer().getHealth() - event.getFinalDamage() <= 0) {
                         player.getCurrentGame().playerDied(player);
                         event.setCancelled(true);
-                        player.asBukkitPlayer().getActivePotionEffects().forEach(effect -> player.asBukkitPlayer().removePotionEffect(effect.getType()));
-                        player.asBukkitPlayer().setHealth(player.asBukkitPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
-                        player.asBukkitPlayer().setFoodLevel(18);
-                        player.asBukkitPlayer().setFireTicks(0);
                     }
                 }
             }

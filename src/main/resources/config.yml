@@ -213,6 +213,15 @@ messages:
     - ''
     - '&7&m-----------------------------------------------------'
   player-quit: '&aA player on the enemy team quit the game! There are &6%amount% &aplayers left on the enemy team.'
+  game-countdown-title:
+    15: '&4&lGame starts in|&715 seconds!'
+    10: '&4&lGame starts in|&710 seconds!'
+    5: '&4&lGame starts in|&75 seconds!'
+    4: '&4&lGame starts in|&74 seconds!'
+    3: '&4&lGame starts in|&73 seconds!'
+    2: '&4&lGame starts in|&72 seconds!'
+    1: '&4&lGame starts in|&71 seconds!'
+  win-game-title: '&6&lYou won the game!|&aCongratulations!'
 scoreboards:
   title: '&e&lGunfight Tactics'
   spawn:

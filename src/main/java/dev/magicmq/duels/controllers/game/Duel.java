@@ -102,6 +102,12 @@ public class Duel {
                     player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_PLING, PluginConfig.getSoundVolume(), 1f);
                 });
             }
+
+            HashMap<Integer, String> titleMessages = PluginConfig.getGameCountdownTitle();
+            if (titleMessages.containsKey(preGameTime)) {
+                String[] split = titleMessages.get(preGameTime).split("\\|");
+                players.forEach(player -> player.asBukkitPlayer().sendTitle(split[0], split[1], 5, 20, 10));
+            }
             if (preGameTime == 0) {
                 startGame();
             }
@@ -161,7 +167,7 @@ public class Duel {
     public void playerDied(DuelsPlayer player) {
         player.setDeaths(player.getDeaths() + 1);
         player.died();
-        player.asBukkitPlayer().setGameMode(GameMode.SPECTATOR);
+        cleanupPlayer(player, GameMode.SPECTATOR);
 
         if (player.asBukkitPlayer().getKiller() != null) {
             DuelsPlayer killer = PlayerController.get().getDuelsPlayer(player.asBukkitPlayer().getKiller());
@@ -171,12 +177,6 @@ public class Duel {
                         .replace("%players%", player.asBukkitPlayer().getName())
                         .replace("%maxplayers%", "" + getAlivePlayers(player.getTeam())));
             }
-        }
-
-        PlayerInventory inv = player.asBukkitPlayer().getInventory();
-        inv.clear();
-        for (Map.Entry<Integer, ItemStack> entry : PlayerController.get().getSpectateHotbar().entrySet()) {
-            inv.setItem(entry.getKey(), entry.getValue().clone());
         }
 
         playersDisplay.put(player, player.getTeam().getDisplayColor() + "" + ChatColor.STRIKETHROUGH + "⬛ " + player.asBukkitPlayer().getName());
@@ -267,7 +267,14 @@ public class Duel {
         for (DuelsPlayer player : playersCopy) {
             if (player.asBukkitPlayer().isOnline()) {
                 DuelsPlayer toIncrement = PlayerController.get().getDuelsPlayer(player.getUniqueId());
+                toIncrement.setGamesPlayed(toIncrement.getGamesPlayed() + 1);
                 if (winner != null) {
+                    if (toIncrement.getTeam() == winner) {
+                        toIncrement.setWins(toIncrement.getWins() + 1);
+                    } else {
+                        toIncrement.setLosses(toIncrement.getLosses() + 1);
+                    }
+
                     PluginConfig.getMultilineMessage(player.getTeam() == winner ? "win-match" : "lose-match").forEach(string -> {
                         string = string.replace("%kills%", "" + player.getKills())
                                 .replace("%deaths%", "" + player.getDeaths())
@@ -280,11 +287,9 @@ public class Duel {
                                 .replace("%losingteam%", winner == Team.ONE ? Team.TWO.displayName : Team.ONE.displayName);
                         player.sendMessage(string);
                     });
-                    
-                    if (toIncrement.getTeam() == winner) {
-                        toIncrement.setWins(toIncrement.getWins() + 1);
-                    } else {
-                        toIncrement.setLosses(toIncrement.getLosses() + 1);
+
+                    if (player.getTeam() == winner) {
+                        player.asBukkitPlayer().sendTitle(PluginConfig.getBareMessage("win-game-title").split("\\|")[0], PluginConfig.getBareMessage("win-game-title").split("\\|")[1], 5, 20, 10);
                     }
                 } else {
                     PluginConfig.getMultilineMessage("no-winner").forEach(string -> {
@@ -298,7 +303,6 @@ public class Duel {
                         player.sendMessage(string);
                     });
                 }
-                toIncrement.setGamesPlayed(toIncrement.getGamesPlayed() + 1);
             } else {
                 if (player.getTeam() == winner) {
                     player.setWins(player.getWins() + 1);
@@ -378,12 +382,19 @@ public class Duel {
 
     private void cleanupPlayer(DuelsPlayer player, GameMode gameMode) {
         player.asBukkitPlayer().setGameMode(gameMode);
-        if (gameMode == GameMode.SURVIVAL)
+        if (gameMode == GameMode.SURVIVAL) {
             player.asBukkitPlayer().setFlying(false);
+            player.asBukkitPlayer().setAllowFlight(false);
+        }
         player.asBukkitPlayer().getActivePotionEffects().forEach(effect -> player.asBukkitPlayer().removePotionEffect(effect.getType()));
         player.asBukkitPlayer().setHealth(player.asBukkitPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
         player.asBukkitPlayer().setFoodLevel(18);
         player.asBukkitPlayer().setFireTicks(0);
+        PlayerInventory inv = player.asBukkitPlayer().getInventory();
+        inv.clear();
+        for (Map.Entry<Integer, ItemStack> entry : PlayerController.get().getSpectateHotbar().entrySet()) {
+            inv.setItem(entry.getKey(), entry.getValue().clone());
+        }
     }
 
     @Override

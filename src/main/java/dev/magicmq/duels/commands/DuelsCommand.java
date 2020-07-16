@@ -34,12 +34,13 @@ public class DuelsCommand implements TabExecutor {
         }
 
         SubCommand subCommand = getSubCmdFromArgument(args[0]);
-        SubCommandMeta subCommandMeta = subCommand.getClass().getAnnotation(SubCommandMeta.class);
 
         if (subCommand == null) {
             sender.sendMessage(ChatColor.RED + "Unrecognized argument " + args[0]);
             return true;
         }
+
+        SubCommandMeta subCommandMeta = subCommand.getClass().getAnnotation(SubCommandMeta.class);
 
         if (!subCommandMeta.permission().equals("") && !sender.hasPermission(subCommandMeta.permission())) {
             sender.sendMessage(ChatColor.RED + "Insufficient permissions!");

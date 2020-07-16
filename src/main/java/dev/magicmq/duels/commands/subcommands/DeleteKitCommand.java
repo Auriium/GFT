@@ -20,7 +20,7 @@ public class DeleteKitCommand implements SubCommand {
     @Override
     public boolean onCommand(CommandSender sender, String[] args) {
         if (args.length > 0) {
-            KitsController.get().deleteKit(sender, args[1]);
+            KitsController.get().deleteKit(sender, args[0]);
         } else {
             return false;
         }

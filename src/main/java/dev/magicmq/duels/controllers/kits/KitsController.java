@@ -131,6 +131,7 @@ public class KitsController {
         ItemStack[] inventory = player.getInventory().getContents().clone();
         ItemStack guiItem = inventory[17];
         inventory[17] = null;
+        player.getInventory().remove(guiItem);
         ItemStack[] armor = player.getInventory().getArmorContents();
 
         guiItem = NBTEditor.set(guiItem, name, "action");
@@ -146,6 +147,7 @@ public class KitsController {
             config.save(configFile);
             kits.add(new Kit(name, cost, permission, armor, inventory, guiItem));
             kitsInventory.addItem(guiItem);
+            player.getInventory().clear();
             player.sendMessage(ChatColor.GREEN + "Kit " + name + " was successfully registered.");
         } catch (IOException e) {
             player.sendMessage(ChatColor.RED + "There was an error when saving the kits.yml file! See the console for details.");
