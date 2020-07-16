@@ -16,7 +16,7 @@ import java.util.List;
 
 public class DuelsCommand implements TabExecutor {
 
-    private List<SubCommand> subCommands;
+    private final List<SubCommand> subCommands;
 
     public DuelsCommand() {
         subCommands = new ArrayList<>();
