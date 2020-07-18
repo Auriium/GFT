@@ -1,32 +1,30 @@
 package dev.magicmq.duels;
 
 import dev.magicmq.duels.config.PluginConfig;
+import dev.magicmq.duels.controllers.QueueController;
 import dev.magicmq.duels.controllers.game.DuelController;
 import dev.magicmq.duels.controllers.game.DuelGenerateWaiting;
 import dev.magicmq.duels.controllers.kits.KitsController;
-import dev.magicmq.duels.controllers.QueueController;
 import dev.magicmq.duels.controllers.player.DuelsPlayer;
 import dev.magicmq.duels.controllers.player.PlayerController;
 import io.github.bananapuncher714.nbteditor.NBTEditor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.*;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-
-import java.util.stream.Collectors;
 
 public class PluginListener implements Listener {
 

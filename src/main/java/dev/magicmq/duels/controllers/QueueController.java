@@ -5,6 +5,7 @@ import dev.magicmq.duels.config.PluginConfig;
 import dev.magicmq.duels.controllers.game.DuelController;
 import dev.magicmq.duels.controllers.game.DuelType;
 import dev.magicmq.duels.controllers.player.DuelsPlayer;
+import dev.magicmq.duels.utils.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -12,7 +13,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import dev.magicmq.duels.utils.ItemUtils;
 
 import java.time.Instant;
 import java.util.*;

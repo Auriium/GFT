@@ -1,6 +1,5 @@
 package dev.magicmq.duels.controllers.game;
 
-import com.grinderwolf.swm.api.world.SlimeWorld;
 import dev.magicmq.duels.controllers.player.DuelsPlayer;
 
 import java.util.HashSet;

@@ -7,10 +7,8 @@ import dev.magicmq.duels.storage.SQLStorage;
 import dev.magicmq.duels.utils.ItemUtils;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.*;
 

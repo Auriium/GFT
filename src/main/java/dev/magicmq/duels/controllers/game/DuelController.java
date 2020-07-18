@@ -12,19 +12,16 @@ import com.grinderwolf.swm.api.world.properties.SlimePropertyMap;
 import dev.magicmq.duels.Duels;
 import dev.magicmq.duels.config.PluginConfig;
 import dev.magicmq.duels.controllers.player.DuelsPlayer;
+import dev.magicmq.duels.utils.LoadWorldTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import dev.magicmq.duels.utils.LoadWorldTask;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.DelayQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 
 public class DuelController {

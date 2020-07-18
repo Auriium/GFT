@@ -3,7 +3,6 @@ package dev.magicmq.duels.controllers.scoreboard;
 import dev.magicmq.duels.Duels;
 import dev.magicmq.duels.config.PluginConfig;
 import dev.magicmq.duels.controllers.QueueController;
-import dev.magicmq.duels.controllers.game.Duel;
 import dev.magicmq.duels.controllers.game.DuelType;
 import dev.magicmq.duels.controllers.player.DuelsPlayer;
 import org.bukkit.Bukkit;

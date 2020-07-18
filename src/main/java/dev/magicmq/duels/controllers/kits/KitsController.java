@@ -3,6 +3,7 @@ package dev.magicmq.duels.controllers.kits;
 import dev.magicmq.duels.Duels;
 import dev.magicmq.duels.config.PluginConfig;
 import dev.magicmq.duels.controllers.player.DuelsPlayer;
+import dev.magicmq.duels.utils.ItemUtils;
 import io.github.bananapuncher714.nbteditor.NBTEditor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -13,12 +14,12 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import dev.magicmq.duels.utils.ItemUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.logging.Level;
 
 public class KitsController {

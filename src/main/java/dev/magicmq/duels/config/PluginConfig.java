@@ -1,7 +1,6 @@
 package dev.magicmq.duels.config;
 
 import dev.magicmq.duels.Duels;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

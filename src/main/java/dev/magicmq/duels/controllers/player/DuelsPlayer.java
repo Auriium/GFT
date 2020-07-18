@@ -2,7 +2,6 @@ package dev.magicmq.duels.controllers.player;
 
 import dev.magicmq.duels.controllers.game.Duel;
 import dev.magicmq.duels.controllers.kits.Kit;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.util.List;
