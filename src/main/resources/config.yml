@@ -222,6 +222,7 @@ messages:
     2: '&4&lGame starts in|&72 seconds!'
     1: '&4&lGame starts in|&71 seconds!'
   win-game-title: '&6&lYou won the game!|&aCongratulations!'
+  lose-game-title: '&6&lYou lost the game!|&aBetter luck next time!'
 scoreboards:
   title: '&e&lGunfight Tactics'
   spawn:

@@ -19,8 +19,8 @@ public class SQLStorage {
 
     private static SQLStorage instance;
 
-    private Database database;
-    private Gson gson;
+    private final Database database;
+    private final Gson gson;
 
     private SQLStorage() {
         ConfigurationSection config = PluginConfig.getSqlInfo();

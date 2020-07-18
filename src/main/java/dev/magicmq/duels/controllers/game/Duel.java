@@ -290,6 +290,8 @@ public class Duel {
 
                     if (player.getTeam() == winner) {
                         player.asBukkitPlayer().sendTitle(PluginConfig.getBareMessage("win-game-title").split("\\|")[0], PluginConfig.getBareMessage("win-game-title").split("\\|")[1], 5, 20, 10);
+                    } else {
+                        player.asBukkitPlayer().sendTitle(PluginConfig.getBareMessage("lose-game-title").split("\\|")[0], PluginConfig.getBareMessage("lose-game-title").split("\\|")[1], 5, 20, 10);
                     }
                 } else {
                     PluginConfig.getMultilineMessage("no-winner").forEach(string -> {
