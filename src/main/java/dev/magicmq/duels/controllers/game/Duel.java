@@ -181,9 +181,16 @@ public class Duel {
 
         playersDisplay.put(player, player.getTeam().getDisplayColor() + "" + ChatColor.STRIKETHROUGH + "⬛ " + player.asBukkitPlayer().getName());
 
-        if (type != DuelType.ONE_V_ONE)
-            player.sendMessage(PluginConfig.getMessage("died")
-                    .replace("%amount%", "" + getAlivePlayers(player.getTeam())));
+        if (type != DuelType.ONE_V_ONE) {
+            if (player.asBukkitPlayer().getKiller() != null) {
+                player.sendMessage(PluginConfig.getMessage("killed")
+                        .replace("%amount%", "" + getAlivePlayers(player.getTeam()))
+                        .replace("%killer%", player.asBukkitPlayer().getKiller().getName()));
+            } else {
+                player.sendMessage(PluginConfig.getMessage("died")
+                        .replace("%amount%", "" + getAlivePlayers(player.getTeam())));
+            }
+        }
 
         if (getAlivePlayers(Team.ONE) == 0) {
             endGame(Team.TWO);
@@ -193,10 +200,18 @@ public class Duel {
             return;
         }
 
-        if (type != DuelType.ONE_V_ONE)
-            getPlayers(player.getTeam()).stream().filter(toMessage -> !toMessage.equals(player)).forEach(toMessage -> toMessage.asBukkitPlayer().sendMessage(PluginConfig.getMessage("died-other")
-                    .replace("%player%", player.asBukkitPlayer().getName())
-                    .replace("%amount%", "" + getAlivePlayers(player.getTeam()))));
+        if (type != DuelType.ONE_V_ONE) {
+            if (player.asBukkitPlayer().getKiller() != null) {
+                players.forEach(toMessage -> toMessage.sendMessage(PluginConfig.getMessage("kill-broadcast")
+                        .replace("%player%", player.getName())
+                        .replace("%killer%", player.asBukkitPlayer().getKiller().getName())
+                        .replace("%amount%", "" + getAlivePlayers(player.getTeam()))));
+            } else {
+                players.forEach(toMessage -> toMessage.sendMessage(PluginConfig.getMessage("die-broadcast")
+                        .replace("%player%", player.getName())
+                        .replace("%amount%", "" + getAlivePlayers(player.getTeam()))));
+            }
+        }
     }
 
     public void startGame() {

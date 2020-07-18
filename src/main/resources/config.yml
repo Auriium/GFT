@@ -182,9 +182,11 @@ messages:
     3: '&aYou will be teleported back to spawn in &63 seconds'
     2: '&aYou will be teleported back to spawn in &62 seconds'
     1: '&aYou will be teleported back to spawn in &61 second'
-  died: '&aYou died! There are %amount% players left on your team. You have entered spectator mode to observe the match.'
-  died-other: '&6%player%&a, who was on your team, just died. There are %amount% players left on your team.'
+  died: '&aYou died! You have entered spectator mode to observe the match.'
+  killed: '&aYou were killed by %killer%! You have entered spectator mode to observe the match.'
   killed-player: '&aYou killed &6%player%&a! The enemy team has &6%amount% &aplayers left on their team.'
+  die-broadcast: '&7%player%&c just died! There are &7%amount% &c players left on their team.'
+  kill-broadcast: '&7%killer% &cjust killed &7%player%&c! There are &7%amount% &c players left on their team.'
   win-match:
     - '&7&m-----------------------------------------------------'
     - ''
