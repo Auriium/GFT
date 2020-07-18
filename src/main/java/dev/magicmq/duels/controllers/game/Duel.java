@@ -174,8 +174,8 @@ public class Duel {
             killer.setKills(killer.getKills() + 1);
             if (type != DuelType.ONE_V_ONE) {
                 killer.asBukkitPlayer().sendMessage(PluginConfig.getMessage("killed-player")
-                        .replace("%players%", player.asBukkitPlayer().getName())
-                        .replace("%maxplayers%", "" + getAlivePlayers(player.getTeam())));
+                        .replace("%player%", player.asBukkitPlayer().getName())
+                        .replace("%amount%", "" + getAlivePlayers(player.getTeam())));
             }
         }
 
@@ -284,6 +284,7 @@ public class Duel {
                                 .replace("%shotsfired%", "" + player.getShotsFired())
                                 .replace("%shotshit%", "" + player.getShotsHit())
                                 .replace("%winningteam%", winner.getDisplayName())
+                                .replace("%teamcolor%", "" + winner.getDisplayColor())
                                 .replace("%losingteam%", winner == Team.ONE ? Team.TWO.displayName : Team.ONE.displayName);
                         player.sendMessage(string);
                     });

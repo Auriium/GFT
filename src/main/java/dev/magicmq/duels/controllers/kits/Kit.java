@@ -4,20 +4,22 @@ import org.bukkit.inventory.ItemStack;
 
 public class Kit implements Comparable<Kit> {
 
-    private String name;
-    private double cost;
-    private String permission;
-    private ItemStack[] armor;
-    private ItemStack[] inventory;
-    private ItemStack guiRepresentation;
+    private final String name;
+    private final double cost;
+    private final String permission;
+    private final ItemStack[] armor;
+    private final ItemStack[] inventory;
+    private final ItemStack guiRepresentation;
+    private final int guiSlot;
 
-    public Kit(String name, double cost, String permission, ItemStack[] armor, ItemStack[] inventory, ItemStack guiRepresentation) {
+    public Kit(String name, double cost, String permission, ItemStack[] armor, ItemStack[] inventory, ItemStack guiRepresentation, int guiSlot) {
         this.name = name;
         this.cost = cost;
         this.permission = permission;
         this.armor = armor;
         this.inventory = inventory;
         this.guiRepresentation = guiRepresentation;
+        this.guiSlot = guiSlot;
     }
 
     public String getName() {
@@ -42,6 +44,10 @@ public class Kit implements Comparable<Kit> {
 
     public ItemStack getGuiRepresentation() {
         return guiRepresentation;
+    }
+
+    public int getGuiSlot() {
+        return guiSlot;
     }
 
     @Override

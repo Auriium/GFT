@@ -25,18 +25,18 @@ public class KitsController {
 
     private static KitsController instance;
 
-    private File configFile;
-    private FileConfiguration config;
+    private final File configFile;
+    private final FileConfiguration config;
 
-    private SortedSet<Kit> kits;
-    private Inventory kitsInventory;
-    private Kit defaultKit;
+    private final HashSet<Kit> kits;
+    private final Inventory kitsInventory;
+    private final Kit defaultKit;
 
     private KitsController() {
         configFile = new File(Duels.get().getDataFolder(), "kits.yml");
         config = YamlConfiguration.loadConfiguration(configFile);
 
-        kits = new TreeSet<>();
+        kits = new HashSet<>();
         for (String key : config.getKeys(false)) {
             try {
                 double cost = config.getDouble(key + ".cost");
@@ -44,7 +44,8 @@ public class KitsController {
                 ItemStack[] armor = ItemUtils.itemStackArrayFromBase64(config.getString(key + ".armor"));
                 ItemStack[] inventory = ItemUtils.itemStackArrayFromBase64(config.getString(key + ".inventory"));
                 ItemStack guiItem = ItemUtils.base64ToItem(config.getString(key + ".gui-representation"));
-                kits.add(new Kit(key, cost, permission, armor, inventory, guiItem));
+                int guiSlot = config.getInt(key + ".gui-slot");
+                kits.add(new Kit(key, cost, permission, armor, inventory, guiItem, guiSlot));
             } catch (IOException e) {
                 Duels.get().getLogger().log(Level.SEVERE, "There was an error when loading a kit from the kits.yml file! See this error:");
                 e.printStackTrace();
@@ -53,7 +54,7 @@ public class KitsController {
 
         kitsInventory = Bukkit.createInventory(null, 54, PluginConfig.getKitsGuiName());
         for (Kit kit : kits) {
-            kitsInventory.addItem(kit.getGuiRepresentation().clone());
+            kitsInventory.setItem(kit.getGuiSlot(), kit.getGuiRepresentation().clone());
         }
 
         defaultKit = getKitByName(PluginConfig.getDefaultKit());
@@ -122,7 +123,7 @@ public class KitsController {
         }
     }
 
-    public void createNewKit(Player player, String name, double cost, String permission) {
+    public void createNewKit(Player player, String name, double cost, String permission, int guiSlot) {
         if (getKitByName(name) != null) {
             player.sendMessage(ChatColor.RED + "This kit already exists! Delete it first with /duelskit delete " + name + " if you wish to remake it.");
             return;
@@ -143,10 +144,11 @@ public class KitsController {
         config.set(name + ".armor", base64[1]);
         config.set(name + ".inventory", base64[0]);
         config.set(name + ".gui-representation", guiBase64);
+        config.set(name + ".gui-slot", guiSlot);
         try {
             config.save(configFile);
-            kits.add(new Kit(name, cost, permission, armor, inventory, guiItem));
-            kitsInventory.addItem(guiItem);
+            kits.add(new Kit(name, cost, permission, armor, inventory, guiItem, guiSlot));
+            kitsInventory.setItem(guiSlot, guiItem);
             player.getInventory().clear();
             player.sendMessage(ChatColor.GREEN + "Kit " + name + " was successfully registered.");
         } catch (IOException e) {
