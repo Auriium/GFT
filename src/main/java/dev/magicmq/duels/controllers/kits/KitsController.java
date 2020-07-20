@@ -104,7 +104,7 @@ public class KitsController {
     }
 
     public boolean purchaseKit(DuelsPlayer player, Kit kit) {
-        if (kit.getCost() > 0) {
+        if (player.asBukkitPlayer().hasPermission(kit.getPermission())) {
             if (Duels.get().getEconomy().getBalance(player.asBukkitPlayer()) - kit.getCost() >= 0) {
                 Duels.get().getEconomy().withdrawPlayer(player.asBukkitPlayer(), kit.getCost());
                 player.addUnlockedKit(kit.getName());
@@ -119,7 +119,7 @@ public class KitsController {
                 return false;
             }
         } else {
-            player.sendMessage(PluginConfig.getMessage("not-purchasable"));
+            player.sendMessage(PluginConfig.getMessage("kit-no-permission"));
             return false;
         }
     }
@@ -179,11 +179,7 @@ public class KitsController {
     public boolean doesHaveAccessToKit(DuelsPlayer player, Kit kit) {
         if (kit.equals(defaultKit))
             return true;
-        if (player.asBukkitPlayer().hasPermission(kit.getPermission()))
-            return true;
-        if (player.getUnlockedKits().contains(kit.getName()))
-            return true;
-        return false;
+        return player.getUnlockedKits().contains(kit.getName());
     }
 
     public Kit getKitByName(String name) {

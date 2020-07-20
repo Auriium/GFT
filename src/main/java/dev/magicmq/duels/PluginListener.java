@@ -111,7 +111,7 @@ public class PluginListener implements Listener {
     public void onDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player) {
             DuelsPlayer player = PlayerController.get().getDuelsPlayer((Player) event.getEntity());
-            if (player.isInGame()) {
+            if (player.isInGame() && !player.isDead()) {
                 if (!player.getCurrentGame().hasStarted())
                     event.setCancelled(true);
                 else {

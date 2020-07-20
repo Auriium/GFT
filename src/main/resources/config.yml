@@ -137,7 +137,7 @@ messages:
   kit-purchase: '&aYou have sucessfully purchased the &6%kit% &akit. Enjoy!'
   purchase-not-enough-money: '&cSorry, you do not have enough money to purchase this kit. The cost is &6$%cost%&a.'
   already-have-access: '&cYou already have access to this kit.'
-  not-purchasable: '&cSorry, this kit is not purchasable.'
+  kit-no-permission: '&cSorry, you do not have access to purchase this kit.'
   no-kit-access: '&cPlease select a different kit.'
   kit-selected: '&aYou selected the &e%kit% &akit. Have fun!'
   default-kit: '&aYou did not select a kit, so you have been given the &e%kit% &akit (default).'

@@ -168,16 +168,16 @@ public class Duel {
         if (player.asBukkitPlayer().getKiller() != null) {
             DuelsPlayer killer = PlayerController.get().getDuelsPlayer(player.asBukkitPlayer().getKiller());
             killer.setKills(killer.getKills() + 1);
-            if (type != DuelType.ONE_V_ONE) {
+            /*if (type != DuelType.ONE_V_ONE) {
                 killer.asBukkitPlayer().sendMessage(PluginConfig.getMessage("killed-player")
                         .replace("%player%", player.asBukkitPlayer().getName())
                         .replace("%amount%", "" + getAlivePlayers(player.getTeam())));
-            }
+            }*/
         }
 
         playersDisplay.put(player, player.getTeam().getDisplayColor() + "" + ChatColor.STRIKETHROUGH + "⬛ " + player.asBukkitPlayer().getName());
 
-        if (type != DuelType.ONE_V_ONE) {
+        /*if (type != DuelType.ONE_V_ONE) {
             if (player.asBukkitPlayer().getKiller() != null) {
                 player.sendMessage(PluginConfig.getMessage("killed")
                         .replace("%amount%", "" + getAlivePlayers(player.getTeam()))
@@ -186,7 +186,7 @@ public class Duel {
                 player.sendMessage(PluginConfig.getMessage("died")
                         .replace("%amount%", "" + getAlivePlayers(player.getTeam())));
             }
-        }
+        }*/
 
         if (getAlivePlayers(Team.ONE) == 0) {
             endGame(Team.TWO);
