@@ -8,6 +8,7 @@ import dev.magicmq.duels.controllers.kits.KitsController;
 import dev.magicmq.duels.controllers.player.DuelsPlayer;
 import dev.magicmq.duels.controllers.player.PlayerController;
 import io.github.bananapuncher714.nbteditor.NBTEditor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -18,6 +19,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -26,7 +28,15 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
+import java.util.HashMap;
+
 public class PluginListener implements Listener {
+
+    private HashMap<Player, Location> deathLocations;
+
+    public PluginListener() {
+        this.deathLocations = new HashMap<>();
+    }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
@@ -111,16 +121,38 @@ public class PluginListener implements Listener {
     public void onDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player) {
             DuelsPlayer player = PlayerController.get().getDuelsPlayer((Player) event.getEntity());
-            if (player.isInGame() && !player.isDead()) {
-                if (!player.getCurrentGame().hasStarted())
+            if (player.isInGame()) {
+                if (!player.getCurrentGame().hasStarted()) {
                     event.setCancelled(true);
-                else {
-                    if (player.asBukkitPlayer().getHealth() - event.getFinalDamage() <= 0) {
-                        player.getCurrentGame().playerDied(player);
-                        event.setCancelled(true);
-                    }
+                    return;
+                }
+                if (player.isDead()) {
+                    event.setCancelled(true);
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void onDeath(PlayerDeathEvent event) {
+        DuelsPlayer player = PlayerController.get().getDuelsPlayer(event.getEntity());
+        if (player.isInGame() && !player.isDead()) {
+            if (player.getCurrentGame().hasStarted()) {
+                player.getCurrentGame().playerDied(player);
+                deathLocations.put(event.getEntity(), event.getEntity().getLocation());
+                event.getEntity().spigot().respawn();
+                event.getDrops().clear();
+                event.setDroppedExp(0);
+            }
+        }
+    }
+
+    @EventHandler (priority = EventPriority.MONITOR)
+    public void onRespawn(PlayerRespawnEvent event) {
+        if (deathLocations.containsKey(event.getPlayer())) {
+            DuelsPlayer player = PlayerController.get().getDuelsPlayer(event.getPlayer());
+            player.getCurrentGame().playerRespawned(player);
+            event.setRespawnLocation(deathLocations.remove(event.getPlayer()));
         }
     }
 

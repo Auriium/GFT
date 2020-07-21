@@ -1,5 +1,6 @@
 package dev.magicmq.duels.controllers.game;
 
+import dev.magicmq.duels.Duels;
 import dev.magicmq.duels.config.PluginConfig;
 import dev.magicmq.duels.controllers.kits.Kit;
 import dev.magicmq.duels.controllers.kits.KitsController;
@@ -163,7 +164,6 @@ public class Duel {
     public void playerDied(DuelsPlayer player) {
         player.setDeaths(player.getDeaths() + 1);
         player.died();
-        cleanupPlayer(player, GameMode.SPECTATOR);
 
         if (player.asBukkitPlayer().getKiller() != null) {
             DuelsPlayer killer = PlayerController.get().getDuelsPlayer(player.asBukkitPlayer().getKiller());
@@ -208,6 +208,10 @@ public class Duel {
                         .replace("%amount%", "" + getAlivePlayers(player.getTeam()))));
             }
         }
+    }
+
+    public void playerRespawned(DuelsPlayer player) {
+        cleanupPlayer(player, GameMode.SPECTATOR);
     }
 
     public void startGame() {
@@ -395,20 +399,25 @@ public class Duel {
     }
 
     private void cleanupPlayer(DuelsPlayer player, GameMode gameMode) {
-        player.asBukkitPlayer().setGameMode(gameMode);
+        player.asBukkitPlayer().getActivePotionEffects().forEach(effect -> player.asBukkitPlayer().removePotionEffect(effect.getType()));
         if (gameMode == GameMode.SURVIVAL) {
             player.asBukkitPlayer().setFlying(false);
             player.asBukkitPlayer().setAllowFlight(false);
+        } else if (gameMode == GameMode.SPECTATOR) {
+            player.asBukkitPlayer().setAllowFlight(true);
+            player.asBukkitPlayer().setFlying(true);
+            player.asBukkitPlayer().addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 5, false));
         }
-        player.asBukkitPlayer().getActivePotionEffects().forEach(effect -> player.asBukkitPlayer().removePotionEffect(effect.getType()));
         player.asBukkitPlayer().setHealth(player.asBukkitPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
         player.asBukkitPlayer().setFoodLevel(18);
         player.asBukkitPlayer().setFireTicks(0);
-        PlayerInventory inv = player.asBukkitPlayer().getInventory();
-        inv.clear();
-        for (Map.Entry<Integer, ItemStack> entry : PlayerController.get().getSpectateHotbar().entrySet()) {
-            inv.setItem(entry.getKey(), entry.getValue().clone());
-        }
+        Bukkit.getScheduler().scheduleSyncDelayedTask(Duels.get(), () -> {
+            PlayerInventory inv = player.asBukkitPlayer().getInventory();
+            inv.clear();
+            for (Map.Entry<Integer, ItemStack> entry : PlayerController.get().getSpectateHotbar().entrySet()) {
+                inv.setItem(entry.getKey(), entry.getValue().clone());
+            }
+        }, 1L);
     }
 
     @Override

@@ -9,9 +9,9 @@ import java.util.UUID;
 
 public class DuelsPlayer {
 
-    private Player player;
-    private UUID uniqueId;
-    private String name;
+    private final Player player;
+    private final UUID uniqueId;
+    private final String name;
     private int kills;
     private int deaths;
     private int wins;
