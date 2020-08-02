@@ -3,6 +3,7 @@ package dev.magicmq.duels.controllers.kits;
 import dev.magicmq.duels.Duels;
 import dev.magicmq.duels.config.PluginConfig;
 import dev.magicmq.duels.controllers.player.DuelsPlayer;
+import dev.magicmq.duels.controllers.player.PlayerController;
 import dev.magicmq.duels.utils.ItemUtils;
 import io.github.bananapuncher714.nbteditor.NBTEditor;
 import org.bukkit.Bukkit;
@@ -30,7 +31,8 @@ public class KitsController {
     private final FileConfiguration config;
 
     private final HashSet<Kit> kits;
-    private final Inventory kitsInventory;
+    private String kitsInventoryName;
+    private ItemStack kitGuiNoAccessItem;
     private final Kit defaultKit;
 
     private KitsController() {
@@ -53,20 +55,28 @@ public class KitsController {
             }
         }
 
-        kitsInventory = Bukkit.createInventory(null, 54, PluginConfig.getKitsGuiName());
-        for (Kit kit : kits) {
-            kitsInventory.setItem(kit.getGuiSlot(), kit.getGuiRepresentation().clone());
-        }
+        kitsInventoryName = PluginConfig.getKitsGuiName();
+        kitGuiNoAccessItem = PluginConfig.getKitGuiNoAccessItem();
 
         defaultKit = getKitByName(PluginConfig.getDefaultKit());
     }
 
     public void openKitsInventory(Player player) {
-        player.openInventory(kitsInventory);
+        Inventory inventory = Bukkit.createInventory(null, 54, PluginConfig.getKitsGuiName());
+        for (Kit kit : kits) {
+            if (doesHaveAccessToKit(PlayerController.get().getDuelsPlayer(player), kit)) {
+                inventory.setItem(kit.getGuiSlot(), kit.getGuiRepresentation().clone());
+            } else {
+                ItemStack item = kit.getGuiRepresentation().clone();
+                item.setType(kitGuiNoAccessItem.getType());
+                item.setDurability(kitGuiNoAccessItem.getDurability());
+            }
+        }
+        player.openInventory(inventory);
     }
 
     public boolean isKitsInventory(Inventory inventory) {
-        return inventory.getName().equals(kitsInventory.getName());
+        return kitsInventoryName.equals(inventory.getName());
     }
 
     public void processClick(DuelsPlayer player, String action) {
@@ -149,7 +159,6 @@ public class KitsController {
         try {
             config.save(configFile);
             kits.add(new Kit(name, cost, permission, armor, inventory, guiItem, guiSlot));
-            kitsInventory.setItem(guiSlot, guiItem);
             player.getInventory().clear();
             player.sendMessage(ChatColor.GREEN + "Kit " + name + " was successfully registered.");
         } catch (IOException e) {
@@ -168,7 +177,6 @@ public class KitsController {
         try {
             config.save(configFile);
             kits.remove(kit);
-            kitsInventory.remove(kit.getGuiRepresentation());
             sender.sendMessage(ChatColor.GREEN + "Kit " + name + " was successfully deleted.");
         } catch (IOException e) {
             sender.sendMessage(ChatColor.RED + "There was an error when deleting this kit from the kits.yml file! See the console for details.");

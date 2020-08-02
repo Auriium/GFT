@@ -125,6 +125,8 @@ spectate-hotbar:
     action: 'quit'
     glow: false
     display-name: '&6&lExit Game'
+#Item shown if a player does not have access to a kit
+kit-gui-no-access-item: 'INK_SAC:8 1'
 messages:
   plugin-prefix: '&7GFTactics &9> &r'
   left-during-delay: '&cSorry, a player left while a game was being created, so the game was cancelled. Please re-queue.'

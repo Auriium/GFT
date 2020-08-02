@@ -4,8 +4,10 @@ import dev.magicmq.duels.Duels;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class PluginConfig {
 
-    private static FileConfiguration config;
+    private static final FileConfiguration config;
 
     static {
         config = Duels.get().getConfig();
@@ -134,6 +136,18 @@ public class PluginConfig {
             messages.put(Integer.parseInt(key), ChatColor.translateAlternateColorCodes('&', config.getString("messages.plugin-prefix") + config.getString("messages.post-game-countdown." + key)));
         }
         return messages;
+    }
+
+    public static ItemStack getKitGuiNoAccessItem() {
+        ItemStack itemStack;
+        String[] item = config.getString("item").split(" ");
+        int amount = Integer.parseInt(item[1]);
+        if (item[0].contains(":")) {
+            itemStack = new ItemStack(Material.getMaterial(item[0].split(":")[0]), amount, Short.parseShort(item[0].split(":")[1]));
+        } else {
+            itemStack = new ItemStack(Material.getMaterial(item[0]), amount);
+        }
+        return itemStack;
     }
 
     public static List<String> getMultilineMessage(String key) {

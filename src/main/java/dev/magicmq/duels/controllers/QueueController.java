@@ -1,6 +1,7 @@
 package dev.magicmq.duels.controllers;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import dev.magicmq.duels.config.PluginConfig;
 import dev.magicmq.duels.controllers.game.DuelController;
 import dev.magicmq.duels.controllers.game.DuelType;
@@ -149,15 +150,16 @@ public class QueueController {
             .replace("%players%", "" + queue.size())
             .replace("%maxplayers%", "" + type.getMaxPlayers())));
         if (queue.size() >= type.getMaxPlayers()) {
-            HashSet<DuelsPlayer> players = new HashSet<>();
+            List<DuelsPlayer> players = new ArrayList<>();
             for (int i = 0; i < type.getMaxPlayers(); i++) {
                 DuelsPlayer toAdd = queue.poll();
                 queueTimes.remove(toAdd);
-                toAdd.asBukkitPlayer().sendMessage(PluginConfig.getMessage("game-created"));
+                toAdd.sendMessage(PluginConfig.getMessage("game-created"));
                 players.add(toAdd);
                 toAdd.asBukkitPlayer().playSound(toAdd.asBukkitPlayer().getLocation(), Sound.ENTITY_WITHER_SPAWN, PluginConfig.getSoundVolume(), 1f);
             }
-            DuelController.get().queueGame(players, type);
+            Collections.shuffle(players);
+            DuelController.get().queueGame(Sets.newHashSet(players), type);
         } else {
             queue.forEach(toSend -> toSend.asBukkitPlayer().playSound(toSend.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_PLING, PluginConfig.getSoundVolume(), 1f));
             queueTimes.put(player, Instant.now().getEpochSecond());

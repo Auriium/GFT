@@ -18,10 +18,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.world.WorldLoadEvent;
@@ -117,16 +114,12 @@ public class PluginListener implements Listener {
         }
     }
 
-    @EventHandler (priority = EventPriority.MONITOR)
+    @EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player) {
             DuelsPlayer player = PlayerController.get().getDuelsPlayer((Player) event.getEntity());
             if (player.isInGame()) {
                 if (!player.getCurrentGame().hasStarted()) {
-                    event.setCancelled(true);
-                    return;
-                }
-                if (player.isDead()) {
                     event.setCancelled(true);
                 }
             }
@@ -143,6 +136,7 @@ public class PluginListener implements Listener {
                 event.getEntity().spigot().respawn();
                 event.getDrops().clear();
                 event.setDroppedExp(0);
+                event.setDeathMessage(null);
             }
         }
     }
@@ -153,6 +147,22 @@ public class PluginListener implements Listener {
             DuelsPlayer player = PlayerController.get().getDuelsPlayer(event.getPlayer());
             player.getCurrentGame().playerRespawned(player);
             event.setRespawnLocation(deathLocations.remove(event.getPlayer()));
+        }
+    }
+
+    @EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onIgnite(EntityCombustEvent event) {
+        if (event.getEntity() instanceof Player) {
+            DuelsPlayer player = PlayerController.get().getDuelsPlayer((Player) event.getEntity());
+            if (player.isInGame()) {
+                if (!player.getCurrentGame().hasStarted() || player.getCurrentGame().hasEnded()) {
+                    event.setCancelled(true);
+                    return;
+                }
+                if (player.isDead()) {
+                    event.setCancelled(true);
+                }
+            }
         }
     }
 

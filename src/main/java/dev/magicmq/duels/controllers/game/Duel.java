@@ -154,7 +154,7 @@ public class Duel {
 
         playersDisplay.put(player, player.getTeam().getDisplayColor() + "" + ChatColor.STRIKETHROUGH + "⬛ " + player.asBukkitPlayer().getName());
 
-        cleanupPlayer(player, GameMode.SURVIVAL);
+        cleanupPlayer(player, GameMode.SURVIVAL, false);
         player.endGame();
         player.asBukkitPlayer().teleport(PluginConfig.getSpawnLocation());
         PlayerController.get().giveSpawnInv(player.asBukkitPlayer());
@@ -211,7 +211,7 @@ public class Duel {
     }
 
     public void playerRespawned(DuelsPlayer player) {
-        cleanupPlayer(player, GameMode.SPECTATOR);
+        cleanupPlayer(player, GameMode.SPECTATOR, true);
     }
 
     public void startGame() {
@@ -250,10 +250,10 @@ public class Duel {
             Scoreboard scoreboard = player.asBukkitPlayer().getScoreboard();
             org.bukkit.scoreboard.Team teamOne = scoreboard.registerNewTeam("ONE");
             teamOne.setAllowFriendlyFire(false);
-            teamOne.setOption(org.bukkit.scoreboard.Team.Option.NAME_TAG_VISIBILITY, org.bukkit.scoreboard.Team.OptionStatus.NEVER);
+            teamOne.setOption(org.bukkit.scoreboard.Team.Option.NAME_TAG_VISIBILITY, org.bukkit.scoreboard.Team.OptionStatus.FOR_OWN_TEAM);
             org.bukkit.scoreboard.Team teamTwo = scoreboard.registerNewTeam("TWO");
             teamTwo.setAllowFriendlyFire(false);
-            teamTwo.setOption(org.bukkit.scoreboard.Team.Option.NAME_TAG_VISIBILITY, org.bukkit.scoreboard.Team.OptionStatus.NEVER);
+            teamTwo.setOption(org.bukkit.scoreboard.Team.Option.NAME_TAG_VISIBILITY, org.bukkit.scoreboard.Team.OptionStatus.FOR_OWN_TEAM);
             getPlayers(Team.ONE).forEach(toAdd -> teamOne.addPlayer(toAdd.asBukkitPlayer()));
             getPlayers(Team.TWO).forEach(toAdd -> teamTwo.addPlayer(toAdd.asBukkitPlayer()));
 
@@ -263,6 +263,10 @@ public class Duel {
 
     public boolean hasStarted() {
         return started;
+    }
+
+    public boolean hasEnded() {
+        return ended;
     }
 
     public void endGame(Team winner) {
@@ -275,7 +279,7 @@ public class Duel {
 
         for (DuelsPlayer player : players) {
             player.asBukkitPlayer().closeInventory();
-            cleanupPlayer(player, GameMode.SPECTATOR);
+            cleanupPlayer(player, GameMode.SPECTATOR, true);
             ((CraftPlayer) player.asBukkitPlayer()).getHandle().getDataWatcher().set(new DataWatcherObject<>(10, DataWatcherRegistry.b), 0);
         }
 
@@ -344,7 +348,7 @@ public class Duel {
 
     public void closeGame() {
         for (DuelsPlayer player : players) {
-            cleanupPlayer(player, GameMode.SURVIVAL);
+            cleanupPlayer(player, GameMode.SURVIVAL, false);
             player.endGame();
             player.asBukkitPlayer().teleport(PluginConfig.getSpawnLocation());
             PlayerController.get().giveSpawnInv(player.asBukkitPlayer());
@@ -398,26 +402,28 @@ public class Duel {
         return i;
     }
 
-    private void cleanupPlayer(DuelsPlayer player, GameMode gameMode) {
+    private void cleanupPlayer(DuelsPlayer player, GameMode gameMode, boolean setInventory) {
         player.asBukkitPlayer().getActivePotionEffects().forEach(effect -> player.asBukkitPlayer().removePotionEffect(effect.getType()));
         if (gameMode == GameMode.SURVIVAL) {
             player.asBukkitPlayer().setFlying(false);
             player.asBukkitPlayer().setAllowFlight(false);
+            player.asBukkitPlayer().setGameMode(GameMode.SURVIVAL);
         } else if (gameMode == GameMode.SPECTATOR) {
-            player.asBukkitPlayer().setAllowFlight(true);
-            player.asBukkitPlayer().setFlying(true);
-            player.asBukkitPlayer().addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 5, false));
+            player.asBukkitPlayer().setGameMode(GameMode.SPECTATOR);
+            player.asBukkitPlayer().setFlySpeed(0.2f);
         }
         player.asBukkitPlayer().setHealth(player.asBukkitPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
         player.asBukkitPlayer().setFoodLevel(18);
         player.asBukkitPlayer().setFireTicks(0);
-        Bukkit.getScheduler().scheduleSyncDelayedTask(Duels.get(), () -> {
-            PlayerInventory inv = player.asBukkitPlayer().getInventory();
-            inv.clear();
-            for (Map.Entry<Integer, ItemStack> entry : PlayerController.get().getSpectateHotbar().entrySet()) {
-                inv.setItem(entry.getKey(), entry.getValue().clone());
-            }
-        }, 1L);
+        if (setInventory) {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(Duels.get(), () -> {
+                PlayerInventory inv = player.asBukkitPlayer().getInventory();
+                inv.clear();
+                for (Map.Entry<Integer, ItemStack> entry : PlayerController.get().getSpectateHotbar().entrySet()) {
+                    inv.setItem(entry.getKey(), entry.getValue().clone());
+                }
+            }, 1L);
+        }
     }
 
     @Override
