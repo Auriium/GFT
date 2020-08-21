@@ -13,6 +13,7 @@ import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 import java.time.Instant;
@@ -54,8 +55,8 @@ public class QueueController {
         player.openInventory(queueInventory);
     }
 
-    public boolean isQueueInventory(Inventory inventory) {
-        return inventory.getName().equals(queueInventory.getName());
+    public boolean isQueueInventory(InventoryView inventory) {
+        return inventory.getTopInventory().equals(queueInventory);
     }
 
     public void processClick(DuelsPlayer player, String action) {
@@ -161,7 +162,7 @@ public class QueueController {
             Collections.shuffle(players);
             DuelController.get().queueGame(Sets.newHashSet(players), type);
         } else {
-            queue.forEach(toSend -> toSend.asBukkitPlayer().playSound(toSend.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_PLING, PluginConfig.getSoundVolume(), 1f));
+            queue.forEach(toSend -> toSend.asBukkitPlayer().playSound(toSend.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, PluginConfig.getSoundVolume(), 1f));
             queueTimes.put(player, Instant.now().getEpochSecond());
         }
     }

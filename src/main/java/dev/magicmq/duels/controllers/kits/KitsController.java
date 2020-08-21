@@ -14,6 +14,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
@@ -75,8 +76,8 @@ public class KitsController {
         player.openInventory(inventory);
     }
 
-    public boolean isKitsInventory(Inventory inventory) {
-        return kitsInventoryName.equals(inventory.getName());
+    public boolean isKitsInventory(InventoryView view) {
+        return kitsInventoryName.equals(view.getTitle());
     }
 
     public void processClick(DuelsPlayer player, String action) {

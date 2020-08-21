@@ -65,15 +65,16 @@ public class PluginListener implements Listener {
                 if (event.getClickedInventory() instanceof PlayerInventory) {
                     if (NBTEditor.contains(event.getCurrentItem(), "action")) {
                         event.setCancelled(true);
+                        return;
                     }
                 }
-                if (QueueController.get().isQueueInventory(event.getClickedInventory())) {
+                if (QueueController.get().isQueueInventory(event.getView())) {
                     event.setCancelled(true);
                     ItemStack item = event.getCurrentItem();
                     if (NBTEditor.contains(item, "action")) {
                         QueueController.get().processClick(PlayerController.get().getDuelsPlayer((Player) event.getWhoClicked()), NBTEditor.getString(item, "action"));
                     }
-                } else if (KitsController.get().isKitsInventory(event.getClickedInventory())) {
+                } else if (KitsController.get().isKitsInventory(event.getView())) {
                     event.setCancelled(true);
                     ItemStack item = event.getCurrentItem();
                     if (NBTEditor.contains(item, "action")) {

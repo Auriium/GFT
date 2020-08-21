@@ -24,7 +24,7 @@ public class SQLStorage {
 
     private SQLStorage() {
         ConfigurationSection config = PluginConfig.getSqlInfo();
-        database = new Database()
+        database = Database.newDatabase()
                 .withPluginUsing(Duels.get())
                 .withUsername(config.getString("username"))
                 .withPassword(config.getString("password"))

@@ -8,11 +8,11 @@ import dev.magicmq.duels.controllers.player.DuelsPlayer;
 import dev.magicmq.duels.controllers.player.PlayerController;
 import dev.magicmq.duels.controllers.scoreboard.ScoreboardController;
 import dev.magicmq.duels.storage.SQLStorage;
-import net.minecraft.server.v1_12_R1.DataWatcherObject;
-import net.minecraft.server.v1_12_R1.DataWatcherRegistry;
+import net.minecraft.server.v1_15_R1.DataWatcherObject;
+import net.minecraft.server.v1_15_R1.DataWatcherRegistry;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
@@ -96,7 +96,7 @@ public class Duel {
             if (messages.containsKey(preGameTime)) {
                 players.forEach(player -> {
                     player.sendMessage(messages.get(preGameTime));
-                    player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_PLING, PluginConfig.getSoundVolume(), 1f);
+                    player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, PluginConfig.getSoundVolume(), 1f);
                 });
             }
 
@@ -114,7 +114,7 @@ public class Duel {
             if (messages.containsKey(gameTime)) {
                 players.forEach(player -> {
                     player.sendMessage(messages.get(gameTime));
-                    player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_PLING, PluginConfig.getSoundVolume(), 1f);
+                    player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, PluginConfig.getSoundVolume(), 1f);
                 });
             }
             if (gameTime == 0) {
@@ -126,7 +126,7 @@ public class Duel {
             if (messages.containsKey(postGameTime)) {
                 players.forEach(player -> {
                     player.sendMessage(messages.get(postGameTime));
-                    player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_PLING, PluginConfig.getSoundVolume(), 1f);
+                    player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, PluginConfig.getSoundVolume(), 1f);
                 });
             }
             if (postGameTime == 0) {
@@ -257,7 +257,7 @@ public class Duel {
             getPlayers(Team.ONE).forEach(toAdd -> teamOne.addPlayer(toAdd.asBukkitPlayer()));
             getPlayers(Team.TWO).forEach(toAdd -> teamTwo.addPlayer(toAdd.asBukkitPlayer()));
 
-            player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_PLING, PluginConfig.getSoundVolume(), 2f);
+            player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, PluginConfig.getSoundVolume(), 2f);
         }
     }
 
