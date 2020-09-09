@@ -132,7 +132,7 @@ public class DuelController {
         SlimeWorld gameWorld = template.getWorld().clone(gameUUID.toString());
         swm.generateWorld(gameWorld);
 
-        waitingToGenerate.add(new DuelGenerateWaiting(gameUUID, template, players, type));
+        worldLoadedCallback(new DuelGenerateWaiting(gameUUID, template, players, type));
     }
 
     public void worldLoadedCallback(DuelGenerateWaiting game) {

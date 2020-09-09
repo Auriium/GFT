@@ -140,7 +140,7 @@ public class PluginConfig {
 
     public static ItemStack getKitGuiNoAccessItem() {
         ItemStack itemStack;
-        String[] item = config.getString("item").split(" ");
+        String[] item = config.getString("kit-gui-no-access-item").split(" ");
         int amount = Integer.parseInt(item[1]);
         if (item[0].contains(":")) {
             itemStack = new ItemStack(Material.getMaterial(item[0].split(":")[0]), amount, Short.parseShort(item[0].split(":")[1]));

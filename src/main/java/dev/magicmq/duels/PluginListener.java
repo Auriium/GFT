@@ -3,7 +3,6 @@ package dev.magicmq.duels;
 import dev.magicmq.duels.config.PluginConfig;
 import dev.magicmq.duels.controllers.QueueController;
 import dev.magicmq.duels.controllers.game.DuelController;
-import dev.magicmq.duels.controllers.game.DuelGenerateWaiting;
 import dev.magicmq.duels.controllers.kits.KitsController;
 import dev.magicmq.duels.controllers.player.DuelsPlayer;
 import dev.magicmq.duels.controllers.player.PlayerController;
@@ -21,7 +20,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -50,13 +48,13 @@ public class PluginListener implements Listener {
         }
     }
 
-    @EventHandler
+    /*@EventHandler
     public void onWorldLoad(WorldLoadEvent event) {
         DuelGenerateWaiting waiting = DuelController.get().getDuelWaiting(event.getWorld());
         if (waiting != null) {
             DuelController.get().worldLoadedCallback(waiting);
         }
-    }
+    }*/
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
