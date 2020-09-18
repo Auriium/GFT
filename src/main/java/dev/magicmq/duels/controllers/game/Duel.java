@@ -13,11 +13,14 @@ import net.minecraft.server.v1_15_R1.DataWatcherRegistry;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.NameTagVisibility;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.*;
@@ -214,7 +217,8 @@ public class Duel {
         cleanupPlayer(player, GameMode.SPECTATOR, true);
     }
 
-    public void startGame() {
+    @SuppressWarnings("deprecation")
+	public void startGame() {
         started = true;
 
         for (DuelsPlayer player : players) {
@@ -250,10 +254,10 @@ public class Duel {
             Scoreboard scoreboard = player.asBukkitPlayer().getScoreboard();
             org.bukkit.scoreboard.Team teamOne = scoreboard.registerNewTeam("ONE");
             teamOne.setAllowFriendlyFire(false);
-            teamOne.setOption(org.bukkit.scoreboard.Team.Option.NAME_TAG_VISIBILITY, org.bukkit.scoreboard.Team.OptionStatus.FOR_OWN_TEAM);
+            teamOne.setNameTagVisibility(NameTagVisibility.HIDE_FOR_OTHER_TEAMS);
             org.bukkit.scoreboard.Team teamTwo = scoreboard.registerNewTeam("TWO");
             teamTwo.setAllowFriendlyFire(false);
-            teamTwo.setOption(org.bukkit.scoreboard.Team.Option.NAME_TAG_VISIBILITY, org.bukkit.scoreboard.Team.OptionStatus.FOR_OWN_TEAM);
+            teamTwo.setNameTagVisibility(NameTagVisibility.HIDE_FOR_OTHER_TEAMS);
             getPlayers(Team.ONE).forEach(toAdd -> teamOne.addPlayer(toAdd.asBukkitPlayer()));
             getPlayers(Team.TWO).forEach(toAdd -> teamTwo.addPlayer(toAdd.asBukkitPlayer()));
 
@@ -280,7 +284,7 @@ public class Duel {
         for (DuelsPlayer player : players) {
             player.asBukkitPlayer().closeInventory();
             cleanupPlayer(player, GameMode.SPECTATOR, true);
-            ((CraftPlayer) player.asBukkitPlayer()).getHandle().getDataWatcher().set(new DataWatcherObject<>(10, DataWatcherRegistry.b), 0);
+            
         }
 
         for (DuelsPlayer player : playersCopy) {
@@ -354,9 +358,20 @@ public class Duel {
             PlayerController.get().giveSpawnInv(player.asBukkitPlayer());
             ScoreboardController.get().changePlayer(player);
         }
-
-        Bukkit.unloadWorld(world, false);
-
+        
+        
+        //redundant check because earlier we were getting a strange crash due to players being in the world at
+        //the time of the crash
+        for (Player player : world.getPlayers()) {
+        	if (player.getWorld() == world) {
+        		
+        		player.teleport(PluginConfig.getSpawnLocation());
+        	}
+        }
+        
+       
+       // 
+        //
         DuelController.get().endGame(this);
     }
 
@@ -412,7 +427,6 @@ public class Duel {
             player.asBukkitPlayer().setGameMode(GameMode.SPECTATOR);
             player.asBukkitPlayer().setFlySpeed(0.2f);
         }
-        player.asBukkitPlayer().setHealth(player.asBukkitPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
         player.asBukkitPlayer().setFoodLevel(18);
         player.asBukkitPlayer().setFireTicks(0);
         if (setInventory) {

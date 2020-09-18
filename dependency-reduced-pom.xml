@@ -57,6 +57,10 @@
   </build>
   <repositories>
     <repository>
+      <id>otherCoolRepo</id>
+      <url>https://repo.magicmq.dev/repository/maven-public/</url>
+    </repository>
+    <repository>
       <id>repo</id>
       <url>https://repo.magicmq.dev/repository/proxy-repos/</url>
     </repository>

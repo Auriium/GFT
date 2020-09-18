@@ -7,6 +7,8 @@ import dev.magicmq.duels.controllers.kits.KitsController;
 import dev.magicmq.duels.controllers.player.DuelsPlayer;
 import dev.magicmq.duels.controllers.player.PlayerController;
 import io.github.bananapuncher714.nbteditor.NBTEditor;
+
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -22,8 +24,11 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class PluginListener implements Listener {
 
@@ -132,7 +137,14 @@ public class PluginListener implements Listener {
             if (player.getCurrentGame().hasStarted()) {
                 player.getCurrentGame().playerDied(player);
                 deathLocations.put(event.getEntity(), event.getEntity().getLocation());
-                event.getEntity().spigot().respawn();
+                new BukkitRunnable() {
+                    public void run() {
+                    	event.getEntity().spigot().respawn();
+                    	
+                    	
+                    }
+                }.runTaskLater(Duels.get(), (long)1L);
+                
                 event.getDrops().clear();
                 event.setDroppedExp(0);
                 event.setDeathMessage(null);
@@ -140,7 +152,7 @@ public class PluginListener implements Listener {
         }
     }
 
-    @EventHandler (priority = EventPriority.MONITOR)
+    @EventHandler
     public void onRespawn(PlayerRespawnEvent event) {
         if (deathLocations.containsKey(event.getPlayer())) {
             DuelsPlayer player = PlayerController.get().getDuelsPlayer(event.getPlayer());
@@ -231,12 +243,28 @@ public class PluginListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         DuelsPlayer player = PlayerController.get().getDuelsPlayer(event.getPlayer());
         if (player.isInGame()) {
-            if (!DuelController.get().isBlockAllowed(event.getBlock().getType())) {
+        	//sorry mq, but all that work with the block allowed check is for nothing
+        	//now that i can directly add materials to the source ;))
+        	
+        	List<Material> listOfShit = new ArrayList<>();
+        	//this is so i can see what is being put into the list and add more stuff ;)
+        	listOfShit.add(Material.GLASS);
+        	listOfShit.add(Material.GLASS_PANE);
+        	listOfShit.add(Material.WHITE_STAINED_GLASS);
+        	listOfShit.add(Material.WHITE_STAINED_GLASS_PANE);
+        	listOfShit.add(Material.GRAY_STAINED_GLASS);
+        	listOfShit.add(Material.GRAY_STAINED_GLASS_PANE);
+        	listOfShit.add(Material.BLACK_STAINED_GLASS);
+        	listOfShit.add(Material.BLACK_STAINED_GLASS_PANE);
+        	listOfShit.add(Material.LIGHT_GRAY_STAINED_GLASS);
+        	listOfShit.add(Material.LIGHT_GRAY_STAINED_GLASS_PANE);
+            if (!listOfShit.contains(event.getBlock().getType())) {
                 event.setCancelled(true);
             }
         }
     }
 
+    //this isnt needed actually but i'm glad you added it :0
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         DuelsPlayer player = PlayerController.get().getDuelsPlayer(event.getPlayer());

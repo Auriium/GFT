@@ -37,7 +37,7 @@ public class LoadWorldTask extends BukkitRunnable {
             SlimeWorld world = swm.loadWorld(loader, worldName, true, properties);
             Bukkit.getScheduler().runTask(Duels.get(), () -> callback.callback(world));
         } catch (UnknownWorldException | IOException | CorruptedWorldException | NewerFormatException | WorldInUseException e) {
-            Duels.get().getLogger().log(Level.SEVERE, "Error when loading world \"" + worldName + "\":");
+            Duels.get().getLogger().log(Level.SEVERE, "(GFT) Error when loading world \"" + worldName + "\":");
             e.printStackTrace();
         }
     }

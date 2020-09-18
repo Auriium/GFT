@@ -80,6 +80,7 @@ public class Duels extends JavaPlugin {
 
     @Override
     public void onDisable() {
+    	Bukkit.broadcastMessage("About to be disabled");
         if (started) {
             DuelController.get().shutdown();
 
@@ -96,6 +97,7 @@ public class Duels extends JavaPlugin {
 
     public Economy getEconomy() {
         return economy;
+        
     }
 
     // Utility Methods

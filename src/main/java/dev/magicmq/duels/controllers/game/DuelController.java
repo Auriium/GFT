@@ -57,7 +57,7 @@ public class DuelController {
                 }
                 loadTemplateWorlds(worldNames);
             } catch (IOException | WorldTooBigException | WorldLoadedException | InvalidWorldException e) {
-                Duels.get().getLogger().log(Level.SEVERE, "Error when importing template world:");
+                Duels.get().getLogger().log(Level.SEVERE, "(GFT) Error when importing template world:");
                 e.printStackTrace();
             }
         });
@@ -76,6 +76,7 @@ public class DuelController {
         waiting = new LinkedList<>();
         waitingToGenerate = new HashSet<>();
         activeGames = new ConcurrentHashMap<>();
+        
     }
 
     public void shutdown() {
@@ -96,6 +97,7 @@ public class DuelController {
             properties.setInt(SlimeProperties.SPAWN_Z, 0);
             new LoadWorldTask(swm, loader, worldName, properties, world -> {
                 swm.generateWorld(world);
+                
                 DuelController.this.templates.add(new TemplateWorld(world,
                         worldName,
                         PluginConfig.getTeamOneSpawns(world.getName()),
