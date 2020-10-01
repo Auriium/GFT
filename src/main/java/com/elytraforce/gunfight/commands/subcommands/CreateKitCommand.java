@@ -13,7 +13,7 @@ import com.elytraforce.gunfight.controllers.kits.KitsController;
         aliases = {"kitcreate"},
         permission = "duels.command.createkit",
         playerOnly = true,
-        usage = "<kitname> <cost> <permission> <guislot>"
+        usage = "<kitname> <cost> <permission> <guislot> <isHidden>"
 )
 public class CreateKitCommand implements SubCommand {
 
@@ -22,7 +22,7 @@ public class CreateKitCommand implements SubCommand {
         Player player = (Player) sender;
         if (args.length > 3) {
             try {
-                KitsController.get().createNewKit(player, args[0], Double.parseDouble(args[1]), args[2], Integer.parseInt(args[3]));
+                KitsController.get().createNewKit(player, args[0], Double.parseDouble(args[1]), args[2], Integer.parseInt(args[3]), Boolean.valueOf(args[4]));
             } catch (NumberFormatException e) {
                 sender.sendMessage(ChatColor.RED + "The kit cost and GUI slot must both be numbers!");
             }

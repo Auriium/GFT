@@ -4,7 +4,9 @@ public enum DuelType {
 
     ONE_V_ONE(2, "1v1"),
     TWO_V_TWO(4, "2v2"),
-    THREE_V_THREE(6, "3v3");
+    THREE_V_THREE(6, "3v3"),
+	TWO_V_TWO_BOMB(4, "2v2 Bomb"),
+	THREE_V_THREE_BOMB(6, "3v3 Bomb");
 
     private int maxPlayers;
     private String displayName;

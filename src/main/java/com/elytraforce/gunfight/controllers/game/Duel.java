@@ -99,6 +99,12 @@ public class Duel {
         //int i = 0;
         //int j = 0;
         
+        if (this.type == DuelType.ONE_V_ONE || this.type == DuelType.TWO_V_TWO || 
+        		this.type == DuelType.THREE_V_THREE || this.type == DuelType.TWO_V_TWO_BOMB || this.type == DuelType.THREE_V_THREE_BOMB) {
+        	
+        	
+        }
+        
         ArrayList<DuelsPlayer> red = new ArrayList<>();
         ArrayList<DuelsPlayer> blue = new ArrayList<>();
         

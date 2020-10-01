@@ -46,6 +46,8 @@ public class KitsController {
     private ItemStack kitGuiNoAccessItem;
     private final Kit defaultKit;
 
+    
+    
     private KitsController() {
         configFile = new File(Main.get().getDataFolder(), "kits.yml");
         config = YamlConfiguration.loadConfiguration(configFile);
@@ -59,7 +61,8 @@ public class KitsController {
                 ItemStack[] inventory = ItemUtils.itemStackArrayFromBase64(config.getString(key + ".inventory"));
                 ItemStack guiItem = ItemUtils.base64ToItem(config.getString(key + ".gui-representation"));
                 int guiSlot = config.getInt(key + ".gui-slot");
-                kits.add(new Kit(key, cost, permission, armor, inventory, guiItem, guiSlot));
+                boolean isHidden = config.getBoolean(key + ".is-hidden");
+                kits.add(new Kit(key, cost, permission, armor, inventory, guiItem, guiSlot, isHidden));
             } catch (IOException e) {
                 Main.get().getLogger().log(Level.SEVERE, "There was an error when loading a kit from the kits.yml file! See this error:");
                 e.printStackTrace();
@@ -74,12 +77,17 @@ public class KitsController {
 
     public void openKitsInventory(Player player) {
     	
+    	
     	//use canvas
     	Menu menu = ChestMenu.builder(4)
                 .title(PluginConfig.getKitsGuiName())
                 .build();
     	
     	for (Kit kit : kits) {
+    		
+    		if (kit.isKitHidden()) {
+    			continue;
+    		}
             	Slot slot = menu.getSlot(kit.getGuiSlot());
             	//make item template
             	slot.setItemTemplate(p -> {
@@ -163,6 +171,8 @@ public class KitsController {
                 }
             } else {
                 if (!doesHaveAccessToKit(player, kit)) {
+                	
+                	
                     purchaseKit(player, kit);
                 } else {
                     player.sendMessage(PluginConfig.getMessage("already-have-access"));
@@ -194,7 +204,7 @@ public class KitsController {
         }
     }
 
-    public void createNewKit(Player player, String name, double cost, String permission, int guiSlot) {
+    public void createNewKit(Player player, String name, double cost, String permission, int guiSlot, boolean hidden) {
         if (getKitByName(name) != null) {
             player.sendMessage(ChatColor.RED + "This kit already exists! Delete it first with /duelskit delete " + name + " if you wish to remake it.");
             return;
@@ -216,9 +226,10 @@ public class KitsController {
         config.set(name + ".inventory", base64[0]);
         config.set(name + ".gui-representation", guiBase64);
         config.set(name + ".gui-slot", guiSlot);
+        config.set(name + ".is-hidden", hidden);
         try {
             config.save(configFile);
-            kits.add(new Kit(name, cost, permission, armor, inventory, guiItem, guiSlot));
+            kits.add(new Kit(name, cost, permission, armor, inventory, guiItem, guiSlot, hidden));
             player.getInventory().clear();
             player.sendMessage(ChatColor.GREEN + "Kit " + name + " was successfully registered.");
         } catch (IOException e) {

@@ -11,8 +11,9 @@ public class Kit implements Comparable<Kit> {
     private final ItemStack[] inventory;
     private final ItemStack guiRepresentation;
     private final int guiSlot;
+    private final boolean isHidden;
 
-    public Kit(String name, double cost, String permission, ItemStack[] armor, ItemStack[] inventory, ItemStack guiRepresentation, int guiSlot) {
+    public Kit(String name, double cost, String permission, ItemStack[] armor, ItemStack[] inventory, ItemStack guiRepresentation, int guiSlot, boolean isHidden) {
         this.name = name;
         this.cost = cost;
         this.permission = permission;
@@ -20,6 +21,7 @@ public class Kit implements Comparable<Kit> {
         this.inventory = inventory;
         this.guiRepresentation = guiRepresentation;
         this.guiSlot = guiSlot;
+		this.isHidden = isHidden;
     }
 
     public String getName() {
@@ -48,6 +50,10 @@ public class Kit implements Comparable<Kit> {
 
     public int getGuiSlot() {
         return guiSlot;
+    }
+    
+    public boolean isKitHidden() {
+    	return this.isHidden;
     }
 
     @Override
