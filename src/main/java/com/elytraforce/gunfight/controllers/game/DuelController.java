@@ -4,6 +4,7 @@ import com.elytraforce.gunfight.Main;
 import com.elytraforce.gunfight.config.PluginConfig;
 import com.elytraforce.gunfight.controllers.QueueController;
 import com.elytraforce.gunfight.controllers.game.Duel.Team;
+import com.elytraforce.gunfight.controllers.game.gamemodes.GameType;
 import com.elytraforce.gunfight.controllers.player.DuelsPlayer;
 import com.elytraforce.gunfight.controllers.player.PlayerController;
 import com.elytraforce.gunfight.utils.LoadWorldTask;
@@ -23,6 +24,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.StringUtils;
@@ -175,13 +177,13 @@ public class DuelController {
     	}
     	
     	menu.open(player.asBukkitPlayer());
+    	player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
     }
     
     public String colorString(String string) {
     	return ChatColor.translateAlternateColorCodes('&', string);
     }
 
-    @SuppressWarnings("unchecked")
     private void loadTemplateWorlds(List<String> worldNames) {
         for (String worldName : worldNames) {
             SlimePropertyMap properties = new SlimePropertyMap();
@@ -202,7 +204,7 @@ public class DuelController {
         }
     }
 
-    public void queueGame(HashSet<DuelsPlayer> players, DuelType type) {
+    public void queueGame(HashSet<DuelsPlayer> players, GameType.Type type) {
         if (waitingToGenerate.size() == 0) {
             beginGame(players, type);
         } else {
@@ -210,7 +212,7 @@ public class DuelController {
         }
     }
 
-    public void beginGame(HashSet<DuelsPlayer> players, DuelType type) {
+    public void beginGame(HashSet<DuelsPlayer> players, GameType.Type type) {
         for (DuelsPlayer player : players) {
             if (!player.asBukkitPlayer().isOnline()) {
                 players.stream().filter(toMessage -> player.asBukkitPlayer().isOnline()).forEach(toMessage -> toMessage.sendMessage(PluginConfig.getMessage("left-during-delay")));

@@ -15,6 +15,12 @@ import org.bukkit.scoreboard.Scoreboard;
 import com.elytraforce.gunfight.Main;
 import com.elytraforce.gunfight.config.PluginConfig;
 import com.elytraforce.gunfight.controllers.game.gamemodes.GameType;
+import com.elytraforce.gunfight.controllers.game.gamemodes.GameType.Type;
+import com.elytraforce.gunfight.controllers.game.gamemodes.OneVOneGame;
+import com.elytraforce.gunfight.controllers.game.gamemodes.ThreeVThreeBomb;
+import com.elytraforce.gunfight.controllers.game.gamemodes.ThreeVThreeGame;
+import com.elytraforce.gunfight.controllers.game.gamemodes.TwoVTwoBomb;
+import com.elytraforce.gunfight.controllers.game.gamemodes.TwoVTwoGame;
 import com.elytraforce.gunfight.controllers.kits.Kit;
 import com.elytraforce.gunfight.controllers.kits.KitsController;
 import com.elytraforce.gunfight.controllers.player.DuelsPlayer;
@@ -26,14 +32,15 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
+@SuppressWarnings("deprecation")
 public class Duel {
 
     private UUID uniqueId;
-    private DuelType type;
+    private GameType.Type type;
     
     private GameType gameType;
+    
     
     private World world;
     private String mapName;
@@ -83,7 +90,8 @@ public class Duel {
         ScoreboardController.get().changePlayer(player);
     }
 
-    public Duel(UUID uniqueId, DuelType type, World world, String mapName, HashSet<DuelsPlayer> players, List<Location> teamOneSpawns, List<Location> teamTwoSpawns) {
+    @SuppressWarnings("unchecked")
+	public Duel(UUID uniqueId, GameType.Type type, World world, String mapName, HashSet<DuelsPlayer> players, List<Location> teamOneSpawns, List<Location> teamTwoSpawns) {
         this.uniqueId = uniqueId;
         this.type = type;
         this.world = world;
@@ -101,16 +109,36 @@ public class Duel {
         
         this.spectators = new HashSet<DuelsPlayer>();
         
-        if (this.type == DuelType.TWO_V_TWO_BOMB || this.type == DuelType.THREE_V_THREE_BOMB) {
-        	//TODO: change this to not be bad
-        	this.bombObject = new BombObject(teamOneSpawns.get(0), this);
+        switch(type) {
+        	case ONE_V_ONE:
+        		this.gameType = new OneVOneGame(this);
+        		break;
+        	case TWO_V_TWO:
+        		this.gameType = new TwoVTwoGame(this);
+        		break;
+        	case THREE_V_THREE:
+        		this.gameType = new ThreeVThreeGame(this);
+        		break;
+        	case TWO_V_TWO_BOMB:
+        		this.gameType = new TwoVTwoBomb(this);
+        		break;
+        	case THREE_V_THREE_BOMB:
+        		this.gameType = new ThreeVThreeBomb(this);
+        		break;
+        	default:
+        		break;
         }
+        
+        //if (this.type == DuelType.TWO_V_TWO_BOMB || this.type == DuelType.THREE_V_THREE_BOMB) {
+        //	//TODO: change this to not be bad
+        //	this.bombObject = new BombObject(teamOneSpawns.get(0), this);
+        //}
         
         //normal gamemodes, come up with a better way to handle this in the future please :)
         
         //TODO: use interface system
-        if (this.type == DuelType.ONE_V_ONE || this.type == DuelType.TWO_V_TWO || 
-        		this.type == DuelType.THREE_V_THREE || this.type == DuelType.TWO_V_TWO_BOMB || this.type == DuelType.THREE_V_THREE_BOMB) {
+        //if (this.type == DuelType.ONE_V_ONE || this.type == DuelType.TWO_V_TWO || 
+        //		this.type == DuelType.THREE_V_THREE || this.type == DuelType.TWO_V_TWO_BOMB || this.type == DuelType.THREE_V_THREE_BOMB) {
         	
         	ArrayList<DuelsPlayer> red = new ArrayList<>();
             ArrayList<DuelsPlayer> blue = new ArrayList<>();
@@ -135,12 +163,12 @@ public class Duel {
             }
             
             //should add the players to virtual storage teams. lets say there are 3 red and 1 blue
-            while (red.size() > type.getMaxPlayers() / 2) {
+            while (red.size() > this.gameType.getMaxPlayers() / 2) {
             	blue.add(red.get(0));
             	red.remove(red.get(0));
             }
             
-            while (blue.size() > type.getMaxPlayers() / 2) {
+            while (blue.size() > this.gameType.getMaxPlayers() / 2) {
             	red.add(blue.get(0));
             	blue.remove(blue.get(0));
             }
@@ -178,14 +206,14 @@ public class Duel {
 
                 
 
-                if (type == DuelType.ONE_V_ONE)
+                if (type == GameType.Type.ONE_V_ONE)
                     player.sendMessage(PluginConfig.getMessage("entered-game-1v1")
                             .replace("%team%", player.getTeam().getDisplayColor() + player.getTeam().getDisplayName()));
                 else
                     player.sendMessage(PluginConfig.getMessage("entered-game")
                             .replace("%team%", player.getTeam().getDisplayColor() + player.getTeam().getDisplayName()));
             }
-        }
+        //}
         
         
     }
@@ -251,11 +279,11 @@ public class Duel {
     //Titles Shit
     public void gameStartTitle() {
     	for (DuelsPlayer player : players) {
-    		player.asBukkitPlayer().sendTitle(colorString("&4&lGame Start!"), colorString("&7GFT - &e&l" + type.getDisplayName()), 10, 10, 10);
+    		player.asBukkitPlayer().sendTitle(colorString("&4&lGame Start!"), colorString("&7GFT - &e&l" + gameType.getDisplayName()), 10, 10, 10);
     	}
     	
     	for (DuelsPlayer player : spectators) {
-    		player.asBukkitPlayer().sendTitle(colorString("&4&lGame Start!"), colorString("&7GFT - &e&l" + type.getDisplayName()), 10, 10, 10);
+    		player.asBukkitPlayer().sendTitle(colorString("&4&lGame Start!"), colorString("&7GFT - &e&l" + gameType.getDisplayName()), 10, 10, 10);
     	}
     	
     	new BukkitRunnable() {
@@ -368,7 +396,7 @@ public class Duel {
             return;
         }
 
-        if (type != DuelType.ONE_V_ONE) {
+        if (this.type != Type.ONE_V_ONE) {
             if (player.asBukkitPlayer().getKiller() != null) {
                 players.forEach(toMessage -> toMessage.sendMessage(PluginConfig.getMessage("kill-broadcast")
                         .replace("%player%", player.getName())
@@ -571,8 +599,12 @@ public class Duel {
         return uniqueId;
     }
 
-    public DuelType getType() {      
+    public GameType.Type getType() {      
         return type;
+    }
+    
+    public GameType getGameType() {
+    	return this.gameType;
     }
 
     public String getMapName() {

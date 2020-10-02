@@ -2,6 +2,7 @@ package com.elytraforce.gunfight;
 
 import io.github.bananapuncher714.nbteditor.NBTEditor;
 
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,7 +25,9 @@ import com.elytraforce.gunfight.config.PluginConfig;
 import com.elytraforce.gunfight.controllers.QueueController;
 import com.elytraforce.gunfight.controllers.game.Duel;
 import com.elytraforce.gunfight.controllers.game.DuelController;
-import com.elytraforce.gunfight.controllers.game.DuelType;
+import com.elytraforce.gunfight.controllers.game.gamemodes.GameType;
+import com.elytraforce.gunfight.controllers.game.gamemodes.ThreeVThreeBomb;
+import com.elytraforce.gunfight.controllers.game.gamemodes.TwoVTwoBomb;
 import com.elytraforce.gunfight.controllers.kits.KitsController;
 import com.elytraforce.gunfight.controllers.player.DuelsPlayer;
 import com.elytraforce.gunfight.controllers.player.PlayerController;
@@ -50,7 +53,7 @@ public class PluginListener implements Listener {
     		if (player.getCurrentGame() == null) return;
     		Duel game = player.getCurrentGame();
     		
-			if (game.getType() == DuelType.TWO_V_TWO_BOMB || game.getType() == DuelType.THREE_V_THREE_BOMB) {
+			if (game.getGameType() instanceof TwoVTwoBomb || game.getGameType() instanceof ThreeVThreeBomb) {
     			
 				game.getBomb().attemptPlant(player);
 				

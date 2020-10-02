@@ -2,12 +2,13 @@ package com.elytraforce.gunfight.controllers.scoreboard;
 
 import org.bukkit.Bukkit;
 
+
 import org.bukkit.scoreboard.Scoreboard;
 
 import com.elytraforce.gunfight.Main;
 import com.elytraforce.gunfight.config.PluginConfig;
 import com.elytraforce.gunfight.controllers.QueueController;
-import com.elytraforce.gunfight.controllers.game.DuelType;
+import com.elytraforce.gunfight.controllers.game.gamemodes.GameType;
 import com.elytraforce.gunfight.controllers.player.DuelsPlayer;
 
 import java.text.DecimalFormat;
@@ -65,17 +66,17 @@ public class ScoreboardController {
             }
         }
     }
-
+ 
     public List<String> getAppropriateScoreboard(DuelsPlayer player) {
         if (player.isInGame()) {
             if (!player.getCurrentGame().hasStarted()) {
-                if (player.getCurrentGame().getType() == DuelType.ONE_V_ONE) {
+                if (player.getCurrentGame().getType() == GameType.Type.ONE_V_ONE) {
                     return preGame1v1Scoreboard;
                 } else {
                     return preGameTeamScoreboard;
                 }
             } else {
-                if (player.getCurrentGame().getType() == DuelType.ONE_V_ONE) {
+                if (player.getCurrentGame().getType() == GameType.Type.ONE_V_ONE) {
                     return game1v1Scoreboard;
                 } else {
                     return gameTeamScoreboard;
@@ -84,13 +85,13 @@ public class ScoreboardController {
         }
         if (player.isSpectating()) {
         	if (!player.getSpectatingGame().hasStarted()) {
-                if (player.getSpectatingGame().getType() == DuelType.ONE_V_ONE) {
+                if (player.getSpectatingGame().getType() == GameType.Type.ONE_V_ONE) {
                     return preGame1v1Scoreboard;
                 } else {
                     return preGameTeamScoreboard;
                 }
             } else {
-                if (player.getSpectatingGame().getType() == DuelType.ONE_V_ONE) {
+                if (player.getSpectatingGame().getType() == GameType.Type.ONE_V_ONE) {
                     return game1v1Scoreboard;
                 } else {
                     return gameTeamScoreboard;
@@ -101,7 +102,7 @@ public class ScoreboardController {
     }
 
     public String replaceVariables(DuelsPlayer player, String string) {
-        DuelType queue = QueueController.get().getQueuePlayerIsIn(player);
+        GameType.Type queue = QueueController.get().getQueuePlayerIsIn(player);
         SimpleDateFormat format = new SimpleDateFormat("mm:ss");
         if (player.isSpectating()) {
         	return string
@@ -113,9 +114,9 @@ public class ScoreboardController {
                     .replace("%losses%", "" + player.getLosses())
                     .replace("%shotsfired%", "" + player.getShotsFired())
                     .replace("%shotshit%", "" + player.getShotsHit())
-                    .replace("%queue%", queue != null ? queue.getDisplayName() : "None")
+                    .replace("%queue%", queue != null ? queue.getGameType().getDisplayName() : "None")
                     .replace("%playersinqueue%", queue != null ? "" + QueueController.get().getNumberInQueue(queue) : "-")
-                    .replace("%playersneeded%", queue != null ? "" + queue.getMaxPlayers() : "-")
+                    .replace("%playersneeded%", queue != null ? "" + queue.getGameType().getMaxPlayers() : "-")
                     .replace("%timequeueing%", queue != null ? format.format(new Date(TimeUnit.SECONDS.toMillis(QueueController.get().getTimeSpentInQueue(player)))) : "-")
                     .replace("%map%", player.isSpectating() ? player.getSpectatingGame().getMapName() : "None")
                     .replace("%kit%", player.getSelectedKit() != null ? player.getSelectedKit().getName() : "None")
@@ -131,9 +132,9 @@ public class ScoreboardController {
                     .replace("%losses%", "" + player.getLosses())
                     .replace("%shotsfired%", "" + player.getShotsFired())
                     .replace("%shotshit%", "" + player.getShotsHit())
-                    .replace("%queue%", queue != null ? queue.getDisplayName() : "None")
+                    .replace("%queue%", queue != null ? queue.getGameType().getDisplayName() : "None")
                     .replace("%playersinqueue%", queue != null ? "" + QueueController.get().getNumberInQueue(queue) : "-")
-                    .replace("%playersneeded%", queue != null ? "" + queue.getMaxPlayers() : "-")
+                    .replace("%playersneeded%", queue != null ? "" + queue.getGameType().getMaxPlayers() : "-")
                     .replace("%timequeueing%", queue != null ? format.format(new Date(TimeUnit.SECONDS.toMillis(QueueController.get().getTimeSpentInQueue(player)))) : "-")
                     .replace("%map%", player.isInGame() ? player.getCurrentGame().getMapName() : "None")
                     .replace("%kit%", player.getSelectedKit() != null ? player.getSelectedKit().getName() : "None")
