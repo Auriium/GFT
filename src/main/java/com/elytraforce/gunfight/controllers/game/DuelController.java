@@ -102,7 +102,7 @@ public class DuelController {
     }
     
     public void displayGUI(DuelsPlayer player) {
-    	Menu menu = ChestMenu.builder(6)
+    	Menu menu = ChestMenu.builder(4)
                 .title(ChatColor.translateAlternateColorCodes('&', "&9Spectate a match"))
                 .build();
     	for (Duel duel : this.activeGames.values()) {
@@ -117,23 +117,36 @@ public class DuelController {
     			StringUtils.capitalize(duel.getMapName());
     		
     			duel.getType();
-    			if (duel.getType().equals(DuelType.ONE_V_ONE)) {
-    			
-    				item.setType(Material.IRON_SWORD);
-    				meta.setDisplayName(colorString("&7One vs One - &e&l" + mapName ));
-    				lore.add(colorString(""));
-    				lore.add(colorString("&7A casual 1 vs 1 match."));
-    			}else if (duel.getType().equals(DuelType.TWO_V_TWO)) {
-    				item.setType(Material.GOLDEN_SWORD);
-    				meta.setDisplayName(colorString("&7Two vs Two - &e&l" + mapName ));
-    				lore.add(colorString(""));
-    				lore.add(colorString("&7A casual 2 vs 2 match."));
-    			}else if (duel.getType().equals(DuelType.THREE_V_THREE)) {
-    				item.setType(Material.DIAMOND_SWORD);
-    				meta.setDisplayName(colorString("&9&lThree vs Three - &e&l" + mapName ));
-    				lore.add(colorString(""));
-    				lore.add(colorString("&7A casual 3 vs 3 match."));
+    			switch (duel.getType()) {
+    				case ONE_V_ONE:
+    					item.setType(Material.IRON_SWORD);
+        				meta.setDisplayName(colorString("&7One vs One - &e&l" + mapName ));
+        				lore.add(colorString(""));
+        				lore.add(colorString("&7A casual 1 vs 1 match."));
+    				case TWO_V_TWO:
+    					item.setType(Material.GOLDEN_SWORD);
+        				meta.setDisplayName(colorString("&7Two vs Two - &e&l" + mapName ));
+        				lore.add(colorString(""));
+        				lore.add(colorString("&7A casual 2 vs 2 match."));
+    				case THREE_V_THREE:
+    					item.setType(Material.DIAMOND_SWORD);
+        				meta.setDisplayName(colorString("&9&lThree vs Three - &e&l" + mapName ));
+        				lore.add(colorString(""));
+        				lore.add(colorString("&7A casual 3 vs 3 match."));
+    				case TWO_V_TWO_BOMB:
+    					item.setType(Material.GOLDEN_SWORD);
+        				meta.setDisplayName(colorString("&7Two vs Two &c&lBOMB&7 - &e&l" + mapName ));
+        				lore.add(colorString(""));
+        				lore.add(colorString("&7A 2 vs 2 match."));
+        				lore.add(colorString("&7Objective: Defuse the Bomb!"));
+    				case THREE_V_THREE_BOMB:
+    					item.setType(Material.DIAMOND_SWORD);
+        				meta.setDisplayName(colorString("&9&lThree vs Three &c&lBOMB&7 - &e&l" + mapName ));
+        				lore.add(colorString(""));
+        				lore.add(colorString("&7A 3 vs 3 match."));
+        				lore.add(colorString("&7Objective: Defuse the Bomb!"));
     			}
+
     			lore.add(colorString(""));
     			lore.add(colorString("&7--Match Players--"));
     			for (DuelsPlayer sub : duel.getPlayers(Team.ONE)) {

@@ -14,6 +14,7 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import com.elytraforce.gunfight.Main;
 import com.elytraforce.gunfight.config.PluginConfig;
+import com.elytraforce.gunfight.controllers.game.gamemodes.GameType;
 import com.elytraforce.gunfight.controllers.kits.Kit;
 import com.elytraforce.gunfight.controllers.kits.KitsController;
 import com.elytraforce.gunfight.controllers.player.DuelsPlayer;
@@ -31,6 +32,9 @@ public class Duel {
 
     private UUID uniqueId;
     private DuelType type;
+    
+    private GameType gameType;
+    
     private World world;
     private String mapName;
     private HashSet<DuelsPlayer> players;
@@ -44,6 +48,7 @@ public class Duel {
     private int preGameTime;
     private int gameTime;
     private int postGameTime;
+    private BombObject bombObject;
     
     public void addSpectator(DuelsPlayer player) {
     	PlayerInventory inv = player.asBukkitPlayer().getInventory();
@@ -95,87 +100,98 @@ public class Duel {
         this.teleportLocation = teamOneSpawns.get(0);
         
         this.spectators = new HashSet<DuelsPlayer>();
-
-        //int i = 0;
-        //int j = 0;
         
+        if (this.type == DuelType.TWO_V_TWO_BOMB || this.type == DuelType.THREE_V_THREE_BOMB) {
+        	//TODO: change this to not be bad
+        	this.bombObject = new BombObject(teamOneSpawns.get(0), this);
+        }
+        
+        //normal gamemodes, come up with a better way to handle this in the future please :)
+        
+        //TODO: use interface system
         if (this.type == DuelType.ONE_V_ONE || this.type == DuelType.TWO_V_TWO || 
         		this.type == DuelType.THREE_V_THREE || this.type == DuelType.TWO_V_TWO_BOMB || this.type == DuelType.THREE_V_THREE_BOMB) {
         	
-        	
-        }
-        
-        ArrayList<DuelsPlayer> red = new ArrayList<>();
-        ArrayList<DuelsPlayer> blue = new ArrayList<>();
-        
-        for (DuelsPlayer player : players) {
-        	PlayerInventory inv = player.asBukkitPlayer().getInventory();
-            inv.clear();
-            for (Map.Entry<Integer, ItemStack> entry : PlayerController.get().getPreGameHotbar().entrySet()) {
-                inv.setItem(entry.getKey(), entry.getValue().clone());
+        	ArrayList<DuelsPlayer> red = new ArrayList<>();
+            ArrayList<DuelsPlayer> blue = new ArrayList<>();
+            
+            for (DuelsPlayer player : players) {
+            	PlayerInventory inv = player.asBukkitPlayer().getInventory();
+                inv.clear();
+                for (Map.Entry<Integer, ItemStack> entry : PlayerController.get().getPreGameHotbar().entrySet()) {
+                    inv.setItem(entry.getKey(), entry.getValue().clone());
+                }
+
+                //team setting over here
+                player.setCurrentGame(this);
+                
+                Boolean teamSwitch = new Random().nextBoolean();
+                
+                if (teamSwitch) {
+                	red.add(player);
+                } else {
+                	blue.add(player);
+                }
             }
+            
+            //should add the players to virtual storage teams. lets say there are 3 red and 1 blue
+            while (red.size() > type.getMaxPlayers() / 2) {
+            	blue.add(red.get(0));
+            	red.remove(red.get(0));
+            }
+            
+            while (blue.size() > type.getMaxPlayers() / 2) {
+            	red.add(blue.get(0));
+            	blue.remove(blue.get(0));
+            }
+            
+            for (DuelsPlayer redPlayer : red) {
+            	redPlayer.setTeam(Team.ONE);
+            	redPlayer.asBukkitPlayer().teleport(teamOneSpawns.get(red.indexOf(redPlayer)));
+            	playersDisplay.put(redPlayer, redPlayer.getTeam().getDisplayColor() + "⬛ " + redPlayer.asBukkitPlayer().getName());
+            }
+            
+            for (DuelsPlayer bluePlayer : blue) {
+            	bluePlayer.setTeam(Team.TWO);
+            	bluePlayer.asBukkitPlayer().teleport(teamTwoSpawns.get(blue.indexOf(bluePlayer)));
+            	playersDisplay.put(bluePlayer, bluePlayer.getTeam().getDisplayColor() + "⬛ " + bluePlayer.asBukkitPlayer().getName());
+            }
+            
+            
+            for (DuelsPlayer player : players) {
+                
+                //if (i < type.getMaxPlayers() / 2) {
+                //    player.setTeam(Team.ONE);
+                //    player.asBukkitPlayer().teleport(teamOneSpawns.get(i));
+                //    i++;
+                //} else {
+                //    player.setTeam(Team.TWO);
+                //    player.asBukkitPlayer().teleport(teamTwoSpawns.get(j));
+                //    j++;
+                //}
 
-            //team setting over here
-            player.setCurrentGame(this);
-            
-        	int randomNum = ThreadLocalRandom.current().nextInt(0, 1 + 1);
-            
-            if (randomNum == 0) {
-            	red.add(player);
-            } else {
-            	blue.add(player);
+                ScoreboardController.get().changePlayer(player);
+
+                player.asBukkitPlayer().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 5, false));
+                player.asBukkitPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, Integer.MAX_VALUE, 5, false));
+                KitsController.get().openKitsInventory(player.asBukkitPlayer());
+
+                
+
+                if (type == DuelType.ONE_V_ONE)
+                    player.sendMessage(PluginConfig.getMessage("entered-game-1v1")
+                            .replace("%team%", player.getTeam().getDisplayColor() + player.getTeam().getDisplayName()));
+                else
+                    player.sendMessage(PluginConfig.getMessage("entered-game")
+                            .replace("%team%", player.getTeam().getDisplayColor() + player.getTeam().getDisplayName()));
             }
         }
         
-        //should add the players to virtual storage teams. lets say there are 3 red and 1 blue
-        while (red.size() > type.getMaxPlayers() / 2) {
-        	blue.add(red.get(0));
-        	red.remove(red.get(0));
-        }
         
-        while (blue.size() > type.getMaxPlayers() / 2) {
-        	red.add(blue.get(0));
-        	blue.remove(blue.get(0));
-        }
-        
-        for (DuelsPlayer redPlayer : red) {
-        	redPlayer.setTeam(Team.ONE);
-        	redPlayer.asBukkitPlayer().teleport(teamOneSpawns.get(red.indexOf(redPlayer)));
-        }
-        
-        for (DuelsPlayer bluePlayer : blue) {
-        	bluePlayer.setTeam(Team.ONE);
-        	bluePlayer.asBukkitPlayer().teleport(teamTwoSpawns.get(blue.indexOf(bluePlayer)));
-        }
-        
-        
-        for (DuelsPlayer player : players) {
-            
-            //if (i < type.getMaxPlayers() / 2) {
-            //    player.setTeam(Team.ONE);
-            //    player.asBukkitPlayer().teleport(teamOneSpawns.get(i));
-            //    i++;
-            //} else {
-            //    player.setTeam(Team.TWO);
-            //    player.asBukkitPlayer().teleport(teamTwoSpawns.get(j));
-            //    j++;
-            //}
-
-            ScoreboardController.get().changePlayer(player);
-
-            player.asBukkitPlayer().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 5, false));
-            player.asBukkitPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, Integer.MAX_VALUE, 5, false));
-            KitsController.get().openKitsInventory(player.asBukkitPlayer());
-
-            playersDisplay.put(player, player.getTeam().getDisplayColor() + "⬛ " + player.asBukkitPlayer().getName());
-
-            if (type == DuelType.ONE_V_ONE)
-                player.sendMessage(PluginConfig.getMessage("entered-game-1v1")
-                        .replace("%team%", player.getTeam().getDisplayColor() + player.getTeam().getDisplayName()));
-            else
-                player.sendMessage(PluginConfig.getMessage("entered-game")
-                        .replace("%team%", player.getTeam().getDisplayColor() + player.getTeam().getDisplayName()));
-        }
+    }
+    
+    public BombObject getBomb() {
+    	return this.bombObject;
     }
     
     public void sendActionBar(Player player, String actionbar) {
@@ -254,7 +270,7 @@ public class Duel {
             	}
             	
             }
-        }.runTaskLater(Main.get(), (long)20L);
+        }.runTaskLater(Main.get(), (long)40L);
     }
     
     public void gameEndTitle(DuelsPlayer player, Team winner, boolean didWin) {
@@ -270,7 +286,13 @@ public class Duel {
     		winningColor = ChatColor.YELLOW;
     	}
     	
-    	player.asBukkitPlayer().sendTitle(colorString("&4&lGame Over!"), colorString(winningColor + "" + ChatColor.BOLD + winningTeam + " &e&lWon!"), 10, 10, 10);
+    	new BukkitRunnable() {
+            public void run() {
+            	
+            	player.asBukkitPlayer().sendTitle(colorString("&4&lGame Over!"), colorString(winningColor + "" + ChatColor.BOLD + winningTeam + " &7&lWon!"), 10, 10, 10);
+            	
+            }
+        }.runTaskLater(Main.get(), (long)10L);
     	
     	new BukkitRunnable() {
             public void run() {
@@ -278,7 +300,7 @@ public class Duel {
             		player.asBukkitPlayer().sendTitle(colorString("&c&lSending you to lobby!"), "", 10, 10, 10);
             	
             }
-        }.runTaskLater(Main.get(), (long)20L);
+        }.runTaskLater(Main.get(), (long)40L);
     }
     
     public String colorString(String string) {

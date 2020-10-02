@@ -103,7 +103,7 @@ public class ScoreboardController {
     public String replaceVariables(DuelsPlayer player, String string) {
         DuelType queue = QueueController.get().getQueuePlayerIsIn(player);
         SimpleDateFormat format = new SimpleDateFormat("mm:ss");
-        if (!player.isSpectating()) {
+        if (player.isSpectating()) {
         	return string
                     .replace("%money%", format(Main.get().getEconomy().getBalance(player.asBukkitPlayer())))
                     .replace("%kills%", "" + player.getKills())

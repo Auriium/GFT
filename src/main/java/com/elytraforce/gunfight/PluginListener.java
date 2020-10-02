@@ -22,7 +22,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import com.elytraforce.gunfight.config.PluginConfig;
 import com.elytraforce.gunfight.controllers.QueueController;
+import com.elytraforce.gunfight.controllers.game.Duel;
 import com.elytraforce.gunfight.controllers.game.DuelController;
+import com.elytraforce.gunfight.controllers.game.DuelType;
 import com.elytraforce.gunfight.controllers.kits.KitsController;
 import com.elytraforce.gunfight.controllers.player.DuelsPlayer;
 import com.elytraforce.gunfight.controllers.player.PlayerController;
@@ -37,6 +39,25 @@ public class PluginListener implements Listener {
 
     public PluginListener() {
         this.deathLocations = new HashMap<>();
+    }
+    
+    @EventHandler
+    public void onPlant(PlayerInteractEvent event) {
+    	
+    	DuelsPlayer player = PlayerController.get().getDuelsPlayer(event.getPlayer());
+    	
+    	if (player.isInGame()) {
+    		if (player.getCurrentGame() == null) return;
+    		Duel game = player.getCurrentGame();
+    		
+			if (game.getType() == DuelType.TWO_V_TWO_BOMB || game.getType() == DuelType.THREE_V_THREE_BOMB) {
+    			
+				game.getBomb().attemptPlant(player);
+				
+				
+    		}
+    	}
+    	
     }
 
     @EventHandler

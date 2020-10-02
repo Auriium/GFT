@@ -178,6 +178,7 @@ public class KitsController {
                     player.sendMessage(PluginConfig.getMessage("already-have-access"));
                     player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
                 }
+                
             }
             player.asBukkitPlayer().closeInventory();
         }
