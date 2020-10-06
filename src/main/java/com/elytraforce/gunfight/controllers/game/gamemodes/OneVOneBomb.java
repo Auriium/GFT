@@ -25,30 +25,30 @@ import com.elytraforce.gunfight.controllers.player.PlayerController;
 import com.elytraforce.gunfight.controllers.scoreboard.ScoreboardController;
 import com.elytraforce.gunfight.utils.ParticleUtils;
 
-public class TwoVTwoBomb implements GameType{
+public class OneVOneBomb implements GameType{
 
 	private Duel duel;
 	
-	public TwoVTwoBomb(Duel duel) {
+	public OneVOneBomb(Duel duel) {
 		this.duel = duel;
 	}
 
 	@Override
 	public int getMaxPlayers() {
 		// TODO Auto-generated method stub
-		return 4;
+		return 2;
 	}
 
 	@Override
 	public int getMinPlayers() {
 		// TODO Auto-generated method stub
-		return 4;
+		return 2;
 	}
 
 	@Override
 	public String getDisplayName() {
 		// TODO Auto-generated method stub
-		return "2v2 Bomb";
+		return "1v1 Bomb";
 	}
 
 	@Override
@@ -117,9 +117,6 @@ public class TwoVTwoBomb implements GameType{
         }
         
         //TODO: select a random red and give them bomb
-        
-        
-		
 	}
 	
 	@Override
@@ -180,7 +177,7 @@ public class TwoVTwoBomb implements GameType{
             		return;
             	} 
             	duel().endGame(null);  
-            }
+            }        
           //**POST GAME RELATED INFO**
         } else if (duel().postGameTime > 0) {
         	duel().postGameTime--;
@@ -256,7 +253,7 @@ public class TwoVTwoBomb implements GameType{
 	@Override
 	public Type getType() {
 		// TODO Auto-generated method stub
-		return Type.TWO_V_TWO_BOMB;
+		return Type.ONE_V_ONE_BOMB;
 	}
 	
 	

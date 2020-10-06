@@ -47,9 +47,9 @@ public class Board {
         Lists.newArrayList(format).forEach(string -> {
             if (string.equals("%players%")) {
                 if (associated.isInGame()) {
-                    formatCopy.addAll(associated.getCurrentGame().getPlayersDisplay());
+                    formatCopy.addAll(associated.getCurrentGame().getPlayersDisplayValues());
                 } else if (associated.isSpectating()) {
-                	formatCopy.addAll(associated.getSpectatingGame().getPlayersDisplay());
+                	formatCopy.addAll(associated.getSpectatingGame().getPlayersDisplayValues());
                 }
             } else {
                 formatCopy.add(ScoreboardController.get().replaceVariables(associated, string));
@@ -71,9 +71,9 @@ public class Board {
         Lists.newArrayList(format).forEach(string -> {
             if (string.equals("%players%")) {
                 if (associated.isInGame()) {
-                    formatCopy.addAll(associated.getCurrentGame().getPlayersDisplay());
+                    formatCopy.addAll(associated.getCurrentGame().getPlayersDisplayValues());
                 } else if (associated.isSpectating()) {
-                	formatCopy.addAll(associated.getSpectatingGame().getPlayersDisplay());
+                	formatCopy.addAll(associated.getSpectatingGame().getPlayersDisplayValues());
                 }
             } else {
                 formatCopy.add(ScoreboardController.get().replaceVariables(associated, string));

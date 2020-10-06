@@ -67,6 +67,10 @@ public class PluginConfig {
     public static List<String> getTeamTwoSpawns(String name) {
         return config.getStringList("game-spawns." + name + ".team-two");
     }
+    
+    public static List<String> getBombLocations(String name) {
+        return config.getStringList("game-spawns." + name + ".bomb-locations");
+    }
 
     public static List<String> getAllowedBlocks() {
         return config.getStringList("allowed-blocks");

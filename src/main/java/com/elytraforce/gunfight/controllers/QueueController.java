@@ -4,8 +4,11 @@ import com.elytraforce.gunfight.config.PluginConfig;
 
 import com.elytraforce.gunfight.controllers.game.DuelController;
 import com.elytraforce.gunfight.controllers.game.gamemodes.GameType;
+import com.elytraforce.gunfight.controllers.game.gamemodes.OneVOneBomb;
 import com.elytraforce.gunfight.controllers.game.gamemodes.OneVOneGame;
+import com.elytraforce.gunfight.controllers.game.gamemodes.ThreeVThreeBomb;
 import com.elytraforce.gunfight.controllers.game.gamemodes.ThreeVThreeGame;
+import com.elytraforce.gunfight.controllers.game.gamemodes.TwoVTwoBomb;
 import com.elytraforce.gunfight.controllers.game.gamemodes.TwoVTwoGame;
 import com.elytraforce.gunfight.controllers.player.DuelsPlayer;
 import com.elytraforce.gunfight.controllers.player.PlayerController;
@@ -46,7 +49,7 @@ public class QueueController {
 
         ConfigurationSection config = PluginConfig.getQueueGui();
         ConfigurationSection settings = config.getConfigurationSection("settings");
-        queueMenu = ChestMenu.builder(3)
+        queueMenu = ChestMenu.builder(4)
                 .title(ChatColor.translateAlternateColorCodes('&', settings.getString("name")))
                 .build();
         
@@ -93,112 +96,82 @@ public class QueueController {
     public void processClick(DuelsPlayer player, String action) {
     	GameType.Type type = getQueuePlayerIsIn(player);
     	GameType actualType;
-        if (action.equals("queue_1v1")) {
-        	actualType = new OneVOneGame(null);
-            if (type != null) {
-                if (type == GameType.Type.ONE_V_ONE) {
-                    player.sendMessage(PluginConfig.getMessage("already-in-queue")
-                            .replace("%queue%", actualType.getDisplayName()));
-                } else {
+    	
+    	switch(action) {
+    		case "queue_1v1":
+    			actualType = new OneVOneGame(null);
+                
+            	this.actionMethod(player, actualType, type);
+                player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
+    			break;
+    		case "queue_2v2":
+    			actualType = new TwoVTwoGame(null);
+                
+            	this.actionMethod(player, actualType, type);
+                player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
+    			break;
+    		case "queue_3v3":
+    			actualType = new ThreeVThreeGame(null);
+                
+            	this.actionMethod(player, actualType, type);
+                player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
+    			break;
+    		case "queue_1v1_bomb":
+    			actualType = new OneVOneBomb(null);
+                
+            	this.actionMethod(player, actualType, type);
+                player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
+    			break;
+    		case "queue_2v2_bomb":
+    			actualType = new TwoVTwoBomb(null);
+                
+            	this.actionMethod(player, actualType, type);
+                player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
+    			break;
+    		case "queue_3v3_bomb":
+    			actualType = new ThreeVThreeBomb(null);
+                this.actionMethod(player, actualType, type);
+            	
+            	player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
+    			break;
+    		case "queue_cancel":
+    			if (type != null) {
+                    player.sendMessage(PluginConfig.getMessage("queue-leave"));
                     removePlayerFromQueue(player, type);
-                    player.sendMessage(PluginConfig.getMessage("queue-leave")
-                            .replace("%queue%", actualType.getDisplayName()));
-                    player.sendMessage(PluginConfig.getMessage("queue-join")
-                            .replace("%queue%", actualType.getDisplayName())
-                            .replace("%players%", "" + (getNumberInQueue(type) + 1))
-                            .replace("%maxplayers%", "" + (actualType.getMaxPlayers())));
-                    addPlayerToQueue(player, type);
-                }
-            } else {
-                player.sendMessage(PluginConfig.getMessage("queue-join")
-                		.replace("%queue%", actualType.getDisplayName())
-                        .replace("%players%", "" + (getNumberInQueue(type) + 1))
-                        .replace("%maxplayers%", "" + (actualType.getMaxPlayers())));
-                addPlayerToQueue(player, type);
-            }
-            player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
-        } else if (action.equals("queue_2v2")) {
-        	actualType = new TwoVTwoGame(null);
-            if (type != null) {
-                if (type == GameType.Type.TWO_V_TWO) {
-                    player.sendMessage(PluginConfig.getMessage("already-in-queue")
-                            .replace("%queue%", actualType.getDisplayName()));
                 } else {
-                    removePlayerFromQueue(player, type);
-                    player.sendMessage(PluginConfig.getMessage("queue-leave")
-                            .replace("%queue%", actualType.getDisplayName()));
-                    player.sendMessage(PluginConfig.getMessage("queue-join")
-                            .replace("%queue%", actualType.getDisplayName())
-                            .replace("%players%", "" + (getNumberInQueue(GameType.Type.TWO_V_TWO) + 1))
-                            .replace("%maxplayers%", "" + (actualType.getMaxPlayers())));
-                    addPlayerToQueue(player, type);
+                    player.sendMessage(PluginConfig.getMessage("not-in-queue"));
                 }
-            } else {
-                player.sendMessage(PluginConfig.getMessage("queue-join")
-                		.replace("%queue%", actualType.getDisplayName())
-                        .replace("%players%", "" + (getNumberInQueue(GameType.Type.TWO_V_TWO) + 1))
-                        .replace("%maxplayers%", "" + (actualType.getMaxPlayers())));
-                addPlayerToQueue(player, type);
-            }
-            player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
-        } else if (action.equals("queue_3v3")) {
-        	actualType = new ThreeVThreeGame(null);
-            if (type != null) {
-                if (type == GameType.Type.THREE_V_THREE) {
-                    player.sendMessage(PluginConfig.getMessage("already-in-queue")
-                            .replace("%queue%", actualType.getDisplayName()));
-                } else {
-                    removePlayerFromQueue(player, type);
-                    player.sendMessage(PluginConfig.getMessage("queue-leave")
-                            .replace("%queue%", actualType.getDisplayName()));
-                    player.sendMessage(PluginConfig.getMessage("queue-join")
-                            .replace("%queue%", actualType.getDisplayName())
-                            .replace("%players%", "" + (getNumberInQueue(GameType.Type.THREE_V_THREE) + 1))
-                            .replace("%maxplayers%", "" + (actualType.getMaxPlayers())));
-                    addPlayerToQueue(player, type);
-                }
-            } else {
-                player.sendMessage(PluginConfig.getMessage("queue-join")
-                		.replace("%queue%", actualType.getDisplayName())
-                        .replace("%players%", "" + (getNumberInQueue(GameType.Type.THREE_V_THREE) + 1))
-                        .replace("%maxplayers%", "" + (actualType.getMaxPlayers())));
-                addPlayerToQueue(player, type);
-            }
-            player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
-        }else if (action.equals("queue_2v2_bomb")) {
-        	actualType = new TwoVTwoGame(null);
-            if (type != null) {
-                if (type == GameType.Type.TWO_V_TWO_BOMB) {
-                    player.sendMessage(PluginConfig.getMessage("already-in-queue")
-                            .replace("%queue%", actualType.getDisplayName()));
-                } else {
-                    removePlayerFromQueue(player, type);
-                    player.sendMessage(PluginConfig.getMessage("queue-leave")
-                            .replace("%queue%", actualType.getDisplayName()));
-                    player.sendMessage(PluginConfig.getMessage("queue-join")
-                            .replace("%queue%", actualType.getDisplayName())
-                            .replace("%players%", "" + (getNumberInQueue(GameType.Type.TWO_V_TWO_BOMB) + 1))
-                            .replace("%maxplayers%", "" + (actualType.getMaxPlayers())));
-                    addPlayerToQueue(player, type);
-                }
-            } else {
-                player.sendMessage(PluginConfig.getMessage("queue-join")
-                		.replace("%queue%", actualType.getDisplayName())
-                        .replace("%players%", "" + (getNumberInQueue(GameType.Type.TWO_V_TWO_BOMB) + 1))
-                        .replace("%maxplayers%", "" + (actualType.getMaxPlayers())));
-                addPlayerToQueue(player, type);
-            }
-            player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
-        } else if (action.equals("queue_leave")) {
-            if (type != null) {
-                player.sendMessage(PluginConfig.getMessage("queue-leave"));
-                removePlayerFromQueue(player, type);
-            } else {
-                player.sendMessage(PluginConfig.getMessage("not-in-queue"));
-            }
-            player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
-        }
+                player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.UI_BUTTON_CLICK, PluginConfig.getSoundVolume(), 1f);
+    			break;
+    		default:
+    			break;
+    	}
+        
         player.asBukkitPlayer().closeInventory();
+    }
+    
+    public void actionMethod(DuelsPlayer player, GameType actualType, GameType.Type currentType) {
+    	if (currentType != null) {
+            if (currentType == actualType.getType()) {
+                player.sendMessage(PluginConfig.getMessage("already-in-queue")
+                        .replace("%queue%", actualType.getDisplayName()));
+            } else {
+                removePlayerFromQueue(player, currentType);
+                player.sendMessage(PluginConfig.getMessage("queue-leave")
+                        .replace("%queue%", actualType.getDisplayName()));
+                player.sendMessage(PluginConfig.getMessage("queue-join")
+                        .replace("%queue%", actualType.getDisplayName())
+                        .replace("%players%", "" + (getNumberInQueue(actualType.getType()) + 1))
+                        .replace("%maxplayers%", "" + (actualType.getMaxPlayers())));
+                addPlayerToQueue(player, actualType.getType());
+            }
+        } else {
+            player.sendMessage(PluginConfig.getMessage("queue-join")
+            		.replace("%queue%", actualType.getDisplayName())
+                    .replace("%players%", "" + (getNumberInQueue(actualType.getType()) + 1))
+                    .replace("%maxplayers%", "" + (actualType.getMaxPlayers())));
+            addPlayerToQueue(player, actualType.getType());
+        }
     }
 
     public void addPlayerToQueue(DuelsPlayer player, GameType.Type type) {

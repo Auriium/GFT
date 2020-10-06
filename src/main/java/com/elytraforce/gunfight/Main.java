@@ -66,6 +66,7 @@ public class Main extends JavaPlugin {
         KitsController.get();
 
         Bukkit.getPluginManager().registerEvents(new PluginListener(), this);
+        Bukkit.getPluginManager().registerEvents(new BombListener(), this);
         Bukkit.getPluginManager().registerEvents(new MenuFunctionListener(), this);
 
         getCommand("duels").setExecutor(new DuelsCommand());

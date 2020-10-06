@@ -2,7 +2,7 @@ package com.elytraforce.gunfight.controllers.kits;
 
 import io.github.bananapuncher714.nbteditor.NBTEditor;
 
-import org.bukkit.Bukkit;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -10,14 +10,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.MaterialData;
 import org.ipvp.canvas.Menu;
 import org.ipvp.canvas.slot.Slot;
-import org.ipvp.canvas.template.ItemStackTemplate;
 import org.ipvp.canvas.type.ChestMenu;
 
 import com.elytraforce.gunfight.Main;

@@ -2,11 +2,9 @@ package com.elytraforce.gunfight.controllers.game;
 
 import com.elytraforce.gunfight.Main;
 import com.elytraforce.gunfight.config.PluginConfig;
-import com.elytraforce.gunfight.controllers.QueueController;
 import com.elytraforce.gunfight.controllers.game.Duel.Team;
 import com.elytraforce.gunfight.controllers.game.gamemodes.GameType;
 import com.elytraforce.gunfight.controllers.player.DuelsPlayer;
-import com.elytraforce.gunfight.controllers.player.PlayerController;
 import com.elytraforce.gunfight.utils.LoadWorldTask;
 import com.grinderwolf.swm.api.SlimePlugin;
 import com.grinderwolf.swm.api.exceptions.InvalidWorldException;
@@ -18,15 +16,12 @@ import com.grinderwolf.swm.api.world.SlimeWorld;
 import com.grinderwolf.swm.api.world.properties.SlimeProperties;
 import com.grinderwolf.swm.api.world.properties.SlimePropertyMap;
 
-import io.github.bananapuncher714.nbteditor.NBTEditor;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.StringUtils;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -34,7 +29,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.ipvp.canvas.Menu;
 import org.ipvp.canvas.slot.Slot;
-import org.ipvp.canvas.slot.Slot.ClickHandler;
 import org.ipvp.canvas.type.ChestMenu;
 
 import java.io.File;
@@ -118,39 +112,52 @@ public class DuelController {
     			String mapName = 
     			StringUtils.capitalize(duel.getMapName());
     		
-    			duel.getType();
-    			switch (duel.getType()) {
+    			switch (duel.getGameType().getType()) {
     				case ONE_V_ONE:
     					item.setType(Material.IRON_SWORD);
         				meta.setDisplayName(colorString("&7One vs One - &e&l" + mapName ));
         				lore.add(colorString(""));
         				lore.add(colorString("&7A casual 1 vs 1 match."));
+        				break;
     				case TWO_V_TWO:
     					item.setType(Material.GOLDEN_SWORD);
         				meta.setDisplayName(colorString("&7Two vs Two - &e&l" + mapName ));
         				lore.add(colorString(""));
         				lore.add(colorString("&7A casual 2 vs 2 match."));
+        				break;
     				case THREE_V_THREE:
     					item.setType(Material.DIAMOND_SWORD);
         				meta.setDisplayName(colorString("&9&lThree vs Three - &e&l" + mapName ));
         				lore.add(colorString(""));
         				lore.add(colorString("&7A casual 3 vs 3 match."));
+        				break;
+    				case ONE_V_ONE_BOMB:
+    					item.setType(Material.IRON_SWORD);
+        				meta.setDisplayName(colorString("&7One vs One &c&lBOMB&7 - &e&l" + mapName ));
+        				lore.add(colorString(""));
+        				lore.add(colorString("&7A 1 vs 1 match."));
+        				lore.add(colorString("&7Objective: Defuse the Bomb!"));
+        				break;
     				case TWO_V_TWO_BOMB:
     					item.setType(Material.GOLDEN_SWORD);
         				meta.setDisplayName(colorString("&7Two vs Two &c&lBOMB&7 - &e&l" + mapName ));
         				lore.add(colorString(""));
         				lore.add(colorString("&7A 2 vs 2 match."));
         				lore.add(colorString("&7Objective: Defuse the Bomb!"));
+        				break;
     				case THREE_V_THREE_BOMB:
     					item.setType(Material.DIAMOND_SWORD);
         				meta.setDisplayName(colorString("&9&lThree vs Three &c&lBOMB&7 - &e&l" + mapName ));
         				lore.add(colorString(""));
         				lore.add(colorString("&7A 3 vs 3 match."));
         				lore.add(colorString("&7Objective: Defuse the Bomb!"));
+        				break;
+    				default:
+    					break;
     			}
 
     			lore.add(colorString(""));
-    			lore.add(colorString("&7--Match Players--"));
+    			lore.add(colorString("&7» Match Players «"));
     			for (DuelsPlayer sub : duel.getPlayers(Team.ONE)) {
     				lore.add(colorString("&c» " + sub.getName()));
     			}
@@ -199,7 +206,8 @@ public class DuelController {
                 DuelController.this.templates.add(new TemplateWorld(world,
                         worldName,
                         PluginConfig.getTeamOneSpawns(world.getName()),
-                        PluginConfig.getTeamTwoSpawns(world.getName())));
+                        PluginConfig.getTeamTwoSpawns(world.getName()), 
+                        PluginConfig.getBombLocations(world.getName())));
             }).runTaskAsynchronously(Main.get());
         }
     }
@@ -246,8 +254,10 @@ public class DuelController {
         template.getTeamOneSpawns().forEach(location -> teamOneSpawns.add(location.toBukkitLocation(world)));
         List<Location> teamTwoSpawns = new ArrayList<>();
         template.getTeamTwoSpawns().forEach(location -> teamTwoSpawns.add(location.toBukkitLocation(world)));
-
-        activeGames.put(gameUUID, new Duel(gameUUID, game.getType(), world, template.getName(), game.getPlayers(), teamOneSpawns, teamTwoSpawns));
+        List<Location> bombLocations = new ArrayList<>();
+        template.getBombLocations().forEach(location -> bombLocations.add(location.toBukkitLocation(world)));
+        
+        activeGames.put(gameUUID, new Duel(gameUUID, game.getType(), world, template.getName(), game.getPlayers(), teamOneSpawns, teamTwoSpawns, bombLocations));
 
         DuelWaiting waiting = this.waiting.poll();
         if (waiting != null) {

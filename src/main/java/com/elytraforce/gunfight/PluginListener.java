@@ -1,12 +1,16 @@
 package com.elytraforce.gunfight;
 
 import io.github.bananapuncher714.nbteditor.NBTEditor;
-
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -23,9 +27,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import com.elytraforce.gunfight.config.PluginConfig;
 import com.elytraforce.gunfight.controllers.QueueController;
+import com.elytraforce.gunfight.controllers.game.BombObject;
 import com.elytraforce.gunfight.controllers.game.Duel;
 import com.elytraforce.gunfight.controllers.game.DuelController;
-import com.elytraforce.gunfight.controllers.game.gamemodes.GameType;
 import com.elytraforce.gunfight.controllers.game.gamemodes.ThreeVThreeBomb;
 import com.elytraforce.gunfight.controllers.game.gamemodes.TwoVTwoBomb;
 import com.elytraforce.gunfight.controllers.kits.KitsController;
@@ -44,25 +48,59 @@ public class PluginListener implements Listener {
         this.deathLocations = new HashMap<>();
     }
     
+   
     @EventHandler
-    public void onPlant(PlayerInteractEvent event) {
-    	
+    public void onTakeArmorBomb(PlayerArmorStandManipulateEvent event) {
+    	DuelsPlayer player = PlayerController.get().getDuelsPlayer(event.getPlayer());
+    	if (player.getCurrentGame() != null && player.getCurrentGame().hasStarted()) {
+    		event.setCancelled(true);
+    		return;
+    	}
+    }
+    
+    @EventHandler
+    public void onDefuseBomb(PlayerInteractAtEntityEvent event) {
     	DuelsPlayer player = PlayerController.get().getDuelsPlayer(event.getPlayer());
     	
-    	if (player.isInGame()) {
-    		if (player.getCurrentGame() == null) return;
-    		Duel game = player.getCurrentGame();
-    		
-			if (game.getGameType() instanceof TwoVTwoBomb || game.getGameType() instanceof ThreeVThreeBomb) {
-    			
-				game.getBomb().attemptPlant(player);
-				
-				
-    		}
+    	Duel game = null;
+    	if (player.getCurrentGame() != null) {
+    		game = player.getCurrentGame();
     	}
     	
+    	if (!(game.getGameType() instanceof TwoVTwoBomb) || !(game.getGameType() instanceof ThreeVThreeBomb))
+    	
+    	if (game != null && player.getCurrentGame().hasStarted()) {
+    		if (player.getTeam() == Duel.Team.TWO) {
+    			
+    			BombObject bomb = player.getCurrentGame().getBomb();
+    			
+    			if (!bomb.isBombPlanted()) { return; }
+    			
+    			if (event.getRightClicked() instanceof ArmorStand) {
+    				if (event.getRightClicked().getCustomName().equals("Bomb")) {
+            				
+            				//add 1 to the bomb counter, record it
+            				bomb.attemptDefuse(player);
+            				int oldBombProgress = bomb.getDefuseProgress();
+            				
+            				new BukkitRunnable() {
+            					public void run() {
+            						if (bomb.isDefused()) {
+            							return;
+            						}
+            						
+            						if (oldBombProgress == bomb.getDefuseProgress()) {
+            							bomb.resetDefuseProgress();
+            						}
+            					}
+            					
+            				}.runTaskLater(Main.get(), 10L);
+    				}
+    			}
+    		}
+    	}
     }
-
+    
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         if (PlayerController.get().getDuelsPlayer(event.getPlayer()) == null) {
@@ -97,19 +135,6 @@ public class PluginListener implements Listener {
                         return;
                     }
                 }
-                //if (QueueController.get().isQueueInventory(event.getView())) {
-                //    event.setCancelled(true);
-                //    ItemStack item = event.getCurrentItem();
-                //    if (NBTEditor.contains(item, "action")) {
-                //        QueueController.get().processClick(PlayerController.get().getDuelsPlayer((Player) event.getWhoClicked()), NBTEditor.getString(item, "action"));
-                //    }
-                //} //else if (KitsController.get().isKitsInventory(event.getView())) {
-                //    event.setCancelled(true);
-                //    ItemStack item = event.getCurrentItem();
-                //    if (NBTEditor.contains(item, "action")) {
-                //        KitsController.get().processClick(PlayerController.get().getDuelsPlayer((Player) event.getWhoClicked()), NBTEditor.getString(item, "action"));
-                //    }
-                //}
             }
         }
     }
@@ -241,6 +266,9 @@ public class PluginListener implements Listener {
                 }
             }
         }
+        
+        
+        
     }
 
     @EventHandler
@@ -314,4 +342,8 @@ public class PluginListener implements Listener {
             }
         }
     }
+    
+    public void sendActionBar(Player player, String actionbar) {
+		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',actionbar)));
+	}
 }

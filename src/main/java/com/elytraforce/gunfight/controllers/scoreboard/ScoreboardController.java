@@ -69,34 +69,19 @@ public class ScoreboardController {
  
     public List<String> getAppropriateScoreboard(DuelsPlayer player) {
         if (player.isInGame()) {
-            if (!player.getCurrentGame().hasStarted()) {
-                if (player.getCurrentGame().getType() == GameType.Type.ONE_V_ONE) {
-                    return preGame1v1Scoreboard;
-                } else {
-                    return preGameTeamScoreboard;
-                }
-            } else {
-                if (player.getCurrentGame().getType() == GameType.Type.ONE_V_ONE) {
+        	if (player.getSpectatingGame().getType().equals(GameType.Type.ONE_V_ONE) || player.getSpectatingGame().getType().equals(GameType.Type.ONE_V_ONE_BOMB)) {
                     return game1v1Scoreboard;
                 } else {
                     return gameTeamScoreboard;
                 }
-            }
         }
         if (player.isSpectating()) {
-        	if (!player.getSpectatingGame().hasStarted()) {
-                if (player.getSpectatingGame().getType() == GameType.Type.ONE_V_ONE) {
-                    return preGame1v1Scoreboard;
-                } else {
-                    return preGameTeamScoreboard;
-                }
-            } else {
-                if (player.getSpectatingGame().getType() == GameType.Type.ONE_V_ONE) {
+                if (player.getSpectatingGame().getType().equals(GameType.Type.ONE_V_ONE) || player.getSpectatingGame().getType().equals(GameType.Type.ONE_V_ONE_BOMB)) {
                     return game1v1Scoreboard;
                 } else {
                     return gameTeamScoreboard;
                 }
-            }
+
         } 
         return spawnScoreboard;
     }
@@ -120,7 +105,7 @@ public class ScoreboardController {
                     .replace("%timequeueing%", queue != null ? format.format(new Date(TimeUnit.SECONDS.toMillis(QueueController.get().getTimeSpentInQueue(player)))) : "-")
                     .replace("%map%", player.isSpectating() ? player.getSpectatingGame().getMapName() : "None")
                     .replace("%kit%", player.getSelectedKit() != null ? player.getSelectedKit().getName() : "None")
-                    .replace("%team%", player.isSpectating() ? player.getTeam().getDisplayColor() + player.getTeam().getDisplayName() : "None")
+                    .replace("%team%", "")
                     .replace("%time%", player.isSpectating() ? format.format(new Date(TimeUnit.SECONDS.toMillis(player.getSpectatingGame().getTimeLeft()))) : "-");
         } else {
         	return string

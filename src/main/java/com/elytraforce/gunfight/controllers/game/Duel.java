@@ -1,12 +1,11 @@
 package com.elytraforce.gunfight.controllers.game;
 
 import org.bukkit.*;
-
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.NameTagVisibility;
@@ -14,8 +13,10 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import com.elytraforce.gunfight.Main;
 import com.elytraforce.gunfight.config.PluginConfig;
+import com.elytraforce.gunfight.controllers.QueueController;
 import com.elytraforce.gunfight.controllers.game.gamemodes.GameType;
 import com.elytraforce.gunfight.controllers.game.gamemodes.GameType.Type;
+import com.elytraforce.gunfight.controllers.game.gamemodes.OneVOneBomb;
 import com.elytraforce.gunfight.controllers.game.gamemodes.OneVOneGame;
 import com.elytraforce.gunfight.controllers.game.gamemodes.ThreeVThreeBomb;
 import com.elytraforce.gunfight.controllers.game.gamemodes.ThreeVThreeGame;
@@ -28,6 +29,7 @@ import com.elytraforce.gunfight.controllers.player.PlayerController;
 import com.elytraforce.gunfight.controllers.scoreboard.ScoreboardController;
 import com.elytraforce.gunfight.storage.SQLStorage;
 
+import lombok.Setter;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 
@@ -38,9 +40,7 @@ public class Duel {
 
     private UUID uniqueId;
     private GameType.Type type;
-    
     private GameType gameType;
-    
     
     private World world;
     private String mapName;
@@ -48,50 +48,56 @@ public class Duel {
     private HashSet<DuelsPlayer> playersCopy;
     private HashMap<DuelsPlayer, String> playersDisplay;
     private HashSet<DuelsPlayer> spectators;
+    
     private boolean started;
     private boolean ended;
     private Location teleportLocation;
 
-    private int preGameTime;
-    private int gameTime;
-    private int postGameTime;
-    private BombObject bombObject;
+    public int preGameTime;
+    public int gameTime; 
+    public int postGameTime;
     
-    public void addSpectator(DuelsPlayer player) {
-    	PlayerInventory inv = player.asBukkitPlayer().getInventory();
-        inv.clear();
-        for (Map.Entry<Integer, ItemStack> entry : PlayerController.get().getSpectateHotbar().entrySet()) {
-            inv.setItem(entry.getKey(), entry.getValue().clone());
-        }
-
-        ScoreboardController.get().changePlayer(player);
-        cleanupPlayer(player, GameMode.SPECTATOR, true);
-        
-        player.setSpectatingGame(this);
-        player.setSpectating(true);
-        this.spectators.add(player);
-        
-        player.asBukkitPlayer().teleport(this.teleportLocation);
-    }
+    private List<Location> teamOneSpawns;
+    private List<Location> teamTwoSpawns;
+    private List<Location> bombLocations;
+    private BombObject bombObject;  
     
-    public void removeSpectator(DuelsPlayer player) {
-    	cleanupPlayer(player, GameMode.SURVIVAL, false);
-        player.endGame();
-        player.asBukkitPlayer().teleport(PluginConfig.getSpawnLocation());
-        PlayerController.get().giveSpawnInv(player.asBukkitPlayer());
-        ScoreboardController.get().changePlayer(player);
-        
-        player.setSpectatingGame(null);
-        player.setSpectating(false);
-        this.spectators.remove(player);
-        
-        player.asBukkitPlayer().teleport(PluginConfig.getSpawnLocation());
-        PlayerController.get().giveSpawnInv(player.asBukkitPlayer());
-        ScoreboardController.get().changePlayer(player);
-    }
+    public int getPreGameTime() { return this.preGameTime; }
+    public void setPreGameTime(int time) { this.preGameTime = time; }
+    public int getGameTime() { return this.gameTime; }
+    public void setGameTime(int time) { this.gameTime = time; }
+    public int getPostGameTime() { return this.postGameTime; }
+    public void setPostGameTime(int time) { this.postGameTime = time; }
+    
+    public boolean hasStarted() { return started; }
+    public boolean hasEnded() { return ended; }
+    
+    public BombObject getBomb() { return this.bombObject; }
+    public void setBomb(BombObject object) { this.bombObject = object; }
+    
+    public Collection<String> getPlayersDisplayValues() { return playersDisplay.values(); }
+    public HashMap<DuelsPlayer, String> getPlayersDisplay() { return this.playersDisplay; }
+    
+    public List<Location> getBombLocations() { return this.bombLocations; }
+    public List<Location> getTeamOneSpawns() { return this.teamOneSpawns; }
+    public List<Location> getTeamTwoSpawns() { return this.teamTwoSpawns; }
+    
+    public HashSet<DuelsPlayer> getAllPlayers() { return this.players; }
+    public HashSet<DuelsPlayer> getSpectators() { return this.spectators; }
 
+    public UUID getUniqueId() { return uniqueId; }
+    public String getMapName() { return mapName; }
+    
+    public GameType.Type getType() { return type; }
+    public GameType getGameType() { return this.gameType; }
+    
+    public String colorString(String string) { return ChatColor.translateAlternateColorCodes('&', string); }
+    
     @SuppressWarnings("unchecked")
-	public Duel(UUID uniqueId, GameType.Type type, World world, String mapName, HashSet<DuelsPlayer> players, List<Location> teamOneSpawns, List<Location> teamTwoSpawns) {
+	public Duel(UUID uniqueId, GameType.Type type, World world, String mapName, 
+	HashSet<DuelsPlayer> players, List<Location> teamOneSpawns, List<Location> teamTwoSpawns, 
+	List<Location> bombLocation) {
+    	
         this.uniqueId = uniqueId;
         this.type = type;
         this.world = world;
@@ -106,8 +112,12 @@ public class Duel {
         postGameTime = PluginConfig.getPostGameTime() + 1;
         
         this.teleportLocation = teamOneSpawns.get(0);
-        
         this.spectators = new HashSet<DuelsPlayer>();
+        this.teamOneSpawns = teamOneSpawns;
+        this.teamTwoSpawns = teamTwoSpawns;
+        
+        this.bombLocations = new ArrayList<>();
+        this.bombLocations = bombLocation;
         
         switch(type) {
         	case ONE_V_ONE:
@@ -119,6 +129,9 @@ public class Duel {
         	case THREE_V_THREE:
         		this.gameType = new ThreeVThreeGame(this);
         		break;
+        	case ONE_V_ONE_BOMB:
+        		this.gameType = new OneVOneBomb(this);
+        		break;
         	case TWO_V_TWO_BOMB:
         		this.gameType = new TwoVTwoBomb(this);
         		break;
@@ -129,154 +142,89 @@ public class Duel {
         		break;
         }
         
-        //if (this.type == DuelType.TWO_V_TWO_BOMB || this.type == DuelType.THREE_V_THREE_BOMB) {
-        //	//TODO: change this to not be bad
-        //	this.bombObject = new BombObject(teamOneSpawns.get(0), this);
-        //}
-        
-        //normal gamemodes, come up with a better way to handle this in the future please :)
-        
-        //TODO: use interface system
-        //if (this.type == DuelType.ONE_V_ONE || this.type == DuelType.TWO_V_TWO || 
-        //		this.type == DuelType.THREE_V_THREE || this.type == DuelType.TWO_V_TWO_BOMB || this.type == DuelType.THREE_V_THREE_BOMB) {
-        	
-        	ArrayList<DuelsPlayer> red = new ArrayList<>();
-            ArrayList<DuelsPlayer> blue = new ArrayList<>();
-            
-            for (DuelsPlayer player : players) {
-            	PlayerInventory inv = player.asBukkitPlayer().getInventory();
-                inv.clear();
-                for (Map.Entry<Integer, ItemStack> entry : PlayerController.get().getPreGameHotbar().entrySet()) {
-                    inv.setItem(entry.getKey(), entry.getValue().clone());
-                }
-
-                //team setting over here
-                player.setCurrentGame(this);
-                
-                Boolean teamSwitch = new Random().nextBoolean();
-                
-                if (teamSwitch) {
-                	red.add(player);
-                } else {
-                	blue.add(player);
-                }
-            }
-            
-            //should add the players to virtual storage teams. lets say there are 3 red and 1 blue
-            while (red.size() > this.gameType.getMaxPlayers() / 2) {
-            	blue.add(red.get(0));
-            	red.remove(red.get(0));
-            }
-            
-            while (blue.size() > this.gameType.getMaxPlayers() / 2) {
-            	red.add(blue.get(0));
-            	blue.remove(blue.get(0));
-            }
-            
-            for (DuelsPlayer redPlayer : red) {
-            	redPlayer.setTeam(Team.ONE);
-            	redPlayer.asBukkitPlayer().teleport(teamOneSpawns.get(red.indexOf(redPlayer)));
-            	playersDisplay.put(redPlayer, redPlayer.getTeam().getDisplayColor() + "⬛ " + redPlayer.asBukkitPlayer().getName());
-            }
-            
-            for (DuelsPlayer bluePlayer : blue) {
-            	bluePlayer.setTeam(Team.TWO);
-            	bluePlayer.asBukkitPlayer().teleport(teamTwoSpawns.get(blue.indexOf(bluePlayer)));
-            	playersDisplay.put(bluePlayer, bluePlayer.getTeam().getDisplayColor() + "⬛ " + bluePlayer.asBukkitPlayer().getName());
-            }
-            
-            
-            for (DuelsPlayer player : players) {
-                
-                //if (i < type.getMaxPlayers() / 2) {
-                //    player.setTeam(Team.ONE);
-                //    player.asBukkitPlayer().teleport(teamOneSpawns.get(i));
-                //    i++;
-                //} else {
-                //    player.setTeam(Team.TWO);
-                //    player.asBukkitPlayer().teleport(teamTwoSpawns.get(j));
-                //    j++;
-                //}
-
-                ScoreboardController.get().changePlayer(player);
-
-                player.asBukkitPlayer().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 5, false));
-                player.asBukkitPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, Integer.MAX_VALUE, 5, false));
-                KitsController.get().openKitsInventory(player.asBukkitPlayer());
-
-                
-
-                if (type == GameType.Type.ONE_V_ONE)
-                    player.sendMessage(PluginConfig.getMessage("entered-game-1v1")
-                            .replace("%team%", player.getTeam().getDisplayColor() + player.getTeam().getDisplayName()));
-                else
-                    player.sendMessage(PluginConfig.getMessage("entered-game")
-                            .replace("%team%", player.getTeam().getDisplayColor() + player.getTeam().getDisplayName()));
-            }
-        //}
-        
-        
+        gameType.startup();
     }
     
-    public BombObject getBomb() {
-    	return this.bombObject;
-    }
-    
-    public void sendActionBar(Player player, String actionbar) {
-		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',actionbar)));
-	}
-
     public void tick() {
-    	for (DuelsPlayer p : this.spectators) {
-    		//send actionbar p.asBukkitPlayer();
-    		this.sendActionBar(p.asBukkitPlayer(), "&aType /quit to return to GFT lobby!");
+    	gameType.tick();
+    }
+    
+    public void addSpectator(DuelsPlayer player) {
+    	if (!(QueueController.get().getQueuePlayerIsIn(player) == null)) {
+    		QueueController.get().removePlayerFromQueue(player);
     	}
-        if (preGameTime > 0) {
-            preGameTime--;
-            HashMap<Integer, String> messages = PluginConfig.getPreGameCountdown();
-            if (messages.containsKey(preGameTime)) {
-                players.forEach(player -> {
-                    player.sendMessage(messages.get(preGameTime));
-                    player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, PluginConfig.getSoundVolume(), 1f);
-                });
-            }
-
-            HashMap<Integer, String> titleMessages = PluginConfig.getGameCountdownTitle();
-            if (titleMessages.containsKey(preGameTime)) {
-                String[] split = titleMessages.get(preGameTime).split("\\|");
-                players.forEach(player -> player.asBukkitPlayer().sendTitle(split[0], split[1], 5, 20, 10));
-            }
-            if (preGameTime == 0) {
-                startGame();
-            }
-        } else if (gameTime > 0) {
-            gameTime--;
-            HashMap<Integer, String> messages = PluginConfig.getGameCountdown();
-            if (messages.containsKey(gameTime)) {
-                players.forEach(player -> {
-                    player.sendMessage(messages.get(gameTime));
-                    player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, PluginConfig.getSoundVolume(), 1f);
-                });
-            }
-            if (gameTime == 0) {
-                endGame(null);
-            }
-        } else if (postGameTime > 0) {
-            postGameTime--;
-            HashMap<Integer, String> messages = PluginConfig.getPostGameCountdown();
-            if (messages.containsKey(postGameTime)) {
-                players.forEach(player -> {
-                    player.sendMessage(messages.get(postGameTime));
-                    player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, PluginConfig.getSoundVolume(), 1f);
-                });
-            }
-            if (postGameTime == 0) {
-                closeGame();
-            }
+    	PlayerInventory inv = player.asBukkitPlayer().getInventory();
+        inv.clear();
+        for (Map.Entry<Integer, ItemStack> entry : PlayerController.get().getSpectateHotbar().entrySet()) {
+            inv.setItem(entry.getKey(), entry.getValue().clone());
         }
+
+        
+        cleanupPlayer(player, GameMode.SPECTATOR, true);
+        
+        player.setSpectatingGame(this);
+        player.setSpectating(true);
+        this.spectators.add(player);
+        
+        player.asBukkitPlayer().teleport(this.teleportLocation);
+        
+        ScoreboardController.get().changePlayer(player);
+    }
+    
+    public void removeSpectator(DuelsPlayer player) {
+    	cleanupPlayer(player, GameMode.SURVIVAL, false);
+        
+        player.asBukkitPlayer().teleport(PluginConfig.getSpawnLocation());
+        PlayerController.get().giveSpawnInv(player.asBukkitPlayer());
+        
+        player.setSpectatingGame(null);
+        player.setSpectating(false);
+        players.remove(player);
+        
+        ScoreboardController.get().changePlayer(player);
     }
     
     //Titles Shit
+    
+    public void broadcastMessage(String string) {
+    	for (DuelsPlayer player : players) {
+    		player.asBukkitPlayer().sendMessage(colorString(string));
+    		player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
+    	}
+    	
+    	for (DuelsPlayer player : spectators) {
+    		player.asBukkitPlayer().sendMessage(colorString(string));
+    		player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
+    	}
+    }
+    
+    public void broadcastTitle(String string) {
+    	for (DuelsPlayer player : players) {
+    		player.asBukkitPlayer().sendTitle(colorString(""), colorString(string), 10, 10, 10);
+    		player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
+    	}
+    	
+    	for (DuelsPlayer player : spectators) {
+    		player.asBukkitPlayer().sendTitle(colorString(""), colorString(string), 10, 10, 10);
+    		player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
+    	}
+    }
+    
+    public void broadcastSound(String string) {
+    	for (DuelsPlayer player : players) {
+    		player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), string, SoundCategory.MASTER, 1, 1);
+    	}
+    	
+    	for (DuelsPlayer player : spectators) {
+    		player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), string, SoundCategory.MASTER, 1, 1);
+    	}
+    }
+    
+    public void sendTitle(DuelsPlayer player, String string) {
+    	player.asBukkitPlayer().sendTitle(colorString(""), colorString(string), 10, 10, 10);
+		player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 1);
+    }
+    
     public void gameStartTitle() {
     	for (DuelsPlayer player : players) {
     		player.asBukkitPlayer().sendTitle(colorString("&4&lGame Start!"), colorString("&7GFT - &e&l" + gameType.getDisplayName()), 10, 10, 10);
@@ -331,10 +279,8 @@ public class Duel {
         }.runTaskLater(Main.get(), (long)40L);
     }
     
-    public String colorString(String string) {
-    	return ChatColor.translateAlternateColorCodes('&', string);
-    }
-
+    //NOT TITLE SHIT
+    
     public void playerQuit(DuelsPlayer player) {
         players.remove(player);
 
@@ -362,59 +308,7 @@ public class Duel {
     }
 
     public void playerDied(DuelsPlayer player) {
-        player.setDeaths(player.getDeaths() + 1);
-        player.died();
-
-        if (player.asBukkitPlayer().getKiller() != null) {
-            DuelsPlayer killer = PlayerController.get().getDuelsPlayer(player.asBukkitPlayer().getKiller());
-            killer.setKills(killer.getKills() + 1);
-            /*if (type != DuelType.ONE_V_ONE) {
-                killer.asBukkitPlayer().sendMessage(PluginConfig.getMessage("killed-player")
-                        .replace("%player%", player.asBukkitPlayer().getName())
-                        .replace("%amount%", "" + getAlivePlayers(player.getTeam())));
-            }*/
-        }
-
-        playersDisplay.put(player, player.getTeam().getDisplayColor() + "" + ChatColor.STRIKETHROUGH + "⬛ " + player.asBukkitPlayer().getName());
-
-        /*if (type != DuelType.ONE_V_ONE) {
-            if (player.asBukkitPlayer().getKiller() != null) {
-                player.sendMessage(PluginConfig.getMessage("killed")
-                        .replace("%amount%", "" + getAlivePlayers(player.getTeam()))
-                        .replace("%killer%", player.asBukkitPlayer().getKiller().getName()));
-            } else {
-                player.sendMessage(PluginConfig.getMessage("died")
-                        .replace("%amount%", "" + getAlivePlayers(player.getTeam())));
-            }
-        }*/
-
-        if (getAlivePlayers(Team.ONE) == 0) {
-            endGame(Team.TWO);
-            return;
-        } else if (getAlivePlayers(Team.TWO) == 0) {
-            endGame(Team.ONE);
-            return;
-        }
-
-        if (this.type != Type.ONE_V_ONE) {
-            if (player.asBukkitPlayer().getKiller() != null) {
-                players.forEach(toMessage -> toMessage.sendMessage(PluginConfig.getMessage("kill-broadcast")
-                        .replace("%player%", player.getName())
-                        .replace("%killer%", player.asBukkitPlayer().getKiller().getName())
-                        .replace("%amount%", "" + getAlivePlayers(player.getTeam()))));
-                spectators.forEach(toMessage -> toMessage.sendMessage(PluginConfig.getMessage("kill-broadcast")
-                        .replace("%player%", player.getName())
-                        .replace("%killer%", player.asBukkitPlayer().getKiller().getName())
-                        .replace("%amount%", "" + getAlivePlayers(player.getTeam()))));
-            } else {
-                players.forEach(toMessage -> toMessage.sendMessage(PluginConfig.getMessage("die-broadcast")
-                        .replace("%player%", player.getName())
-                        .replace("%amount%", "" + getAlivePlayers(player.getTeam()))));
-                spectators.forEach(toMessage -> toMessage.sendMessage(PluginConfig.getMessage("die-broadcast")
-                        .replace("%player%", player.getName())
-                        .replace("%amount%", "" + getAlivePlayers(player.getTeam()))));
-            }
-        }
+    	this.gameType.playerDiedInternal(player);
     }
 
     public void playerRespawned(DuelsPlayer player) {
@@ -425,7 +319,7 @@ public class Duel {
     @SuppressWarnings("deprecation")
 	public void startGame() {
         started = true;
-
+        
         for (DuelsPlayer player : players) {
             player.asBukkitPlayer().removePotionEffect(PotionEffectType.BLINDNESS);
             player.asBukkitPlayer().removePotionEffect(PotionEffectType.SLOW);
@@ -475,14 +369,6 @@ public class Duel {
         this.gameStartTitle();
     }
 
-    public boolean hasStarted() {
-        return started;
-    }
-
-    public boolean hasEnded() {
-        return ended;
-    }
-
     public void endGame(Team winner) {
         preGameTime = 0;
         gameTime = 0;
@@ -490,6 +376,10 @@ public class Duel {
 
         if (!started)
             started = true;
+        
+        if (this.bombObject != null) {
+        	this.bombObject.clean();
+        }
 
         for (DuelsPlayer player : players) {
             player.asBukkitPlayer().closeInventory();
@@ -574,43 +464,26 @@ public class Duel {
         }
         
         for (DuelsPlayer player : spectators) {
-            removeSpectator(player);
+        	cleanupPlayer(player, GameMode.SURVIVAL, false);
+            
+            player.asBukkitPlayer().teleport(PluginConfig.getSpawnLocation());
+            PlayerController.get().giveSpawnInv(player.asBukkitPlayer());
+            
+            player.setSpectatingGame(null);
+            player.setSpectating(false);
+            
+            ScoreboardController.get().changePlayer(player);
         }
-        
-        this.spectators.clear();
-        
         
         //redundant check because earlier we were getting a strange crash due to players being in the world at
         //the time of the crash
-        for (Player player : world.getPlayers()) {
-        	if (player.getWorld() == world) {
-        		
-        		player.teleport(PluginConfig.getSpawnLocation());
-        	}
-        }
         
         Bukkit.unloadWorld(world, false);
        // 
         //
         DuelController.get().endGame(this);
     }
-
-    public UUID getUniqueId() {
-        return uniqueId;
-    }
-
-    public GameType.Type getType() {      
-        return type;
-    }
     
-    public GameType getGameType() {
-    	return this.gameType;
-    }
-
-    public String getMapName() {
-        return mapName;
-    }
-
     public int getTimeLeft() {
         if (started) {
             return gameTime;
@@ -628,10 +501,6 @@ public class Duel {
         return players;
     }
 
-    public Collection<String> getPlayersDisplay() {
-        return playersDisplay.values();
-    }
-
     public int getAlivePlayers(Team team) {
         int i = 0;
         for (DuelsPlayer player : getPlayers(team)) {
@@ -640,7 +509,13 @@ public class Duel {
         }
         return i;
     }
-
+    
+    
+    
+    public void sendActionBar(Player player, String actionbar) {
+		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',actionbar)));
+	}
+    
     private void cleanupPlayer(DuelsPlayer player, GameMode gameMode, boolean setInventory) {
         player.asBukkitPlayer().getActivePotionEffects().forEach(effect -> player.asBukkitPlayer().removePotionEffect(effect.getType()));
         if (gameMode == GameMode.SURVIVAL) {
@@ -663,6 +538,18 @@ public class Duel {
             }, 1L);
         }
     }
+    
+    public String coolCountdownFormat() {
+		int x = this.gameTime;
+		
+		if (x > 9) { 
+			return Integer.toString(x);
+		} else {
+			return "0" + x;
+		}
+		
+		
+	}
 
     @Override
     public boolean equals(Object toCompare) {
@@ -698,4 +585,7 @@ public class Duel {
             return armorColor;
         }
     }
+    
+    //BOMB RELATED STUFF GOES HERE.
+    
 }
