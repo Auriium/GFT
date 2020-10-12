@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
        
  
-public class ItemUtils {
+public class ItemUtils { 
 
     public static String itemStackToBase64(ItemStack item) {
         try {

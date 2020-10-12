@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.bukkit.Bukkit;
 
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -44,6 +45,8 @@ public class BombObject {
 	private boolean attemptingPlant;
 	private boolean attemptingDefuse;
 	
+	private boolean isDropped;
+	
 	private BossBar bombBar;
 	
 	
@@ -66,39 +69,22 @@ public class BombObject {
 		
 		this.bombBar = null;
 		
+		this.isDropped = false;
+		
 	}
 	
-	public boolean isDefused() {
-		return this.isDefused;
-	}
+	public boolean isDropped() { return this.isDropped; }
+	public boolean isDefused() { return this.isDefused; }
+	public boolean isAttemptingPlant() { return this.attemptingPlant; }
+	public void setAttemptingPlant(boolean e) { this.attemptingPlant = e;}
 	
-	public boolean isAttemptingPlant() {
-		return this.attemptingPlant;
-	}
+	public int getProgress() { return this.bombProgress;}
+	public void setProgress(Integer progress) { this.bombProgress = progress;}
 	
-	public void setAttemptingPlant(boolean e) {
-		this.attemptingPlant = e;
-	}
+	public Block getPlantedBlock() { return this.plantedBlock; }
 	
-	public int getProgress() {
-		return this.bombProgress;
-	}
-	
-	public void setProgress(Integer progress) {
-		this.bombProgress = progress;
-	}
-	
-	public Block getPlantedBlock() {
-		return this.plantedBlock;
-	}
-	
-	public void setDefuseProgress(int progress) {
-		this.defuseProgress = progress;
-	}
-	
-	public int getDefuseProgress() {
-		return this.defuseProgress;
-	}
+	public void setDefuseProgress(int progress) { this.defuseProgress = progress; }
+	public int getDefuseProgress() { return this.defuseProgress; }
 	
 	public void resetPlantProgress() {
 		this.bombProgress = 0;
@@ -115,12 +101,13 @@ public class BombObject {
 		this.attemptingDefuse = false;
 	}
 	
-	public void setPlantedBlock(Block block) {
-		this.plantedBlock = block;
-	}
+	public void setPlantedBlock(Block block) { this.plantedBlock = block; }
+	public static String colorString(String string) {return ChatColor.translateAlternateColorCodes('&', string);}
 	
 	public void attemptDefuse(DuelsPlayer player) {
 		if (!this.isPlanted) { return; }
+		if (player.isDead()) { return; }
+		this.defuseProgress++;
 		this.defuseProgress++;
 		
 		if (!attemptingDefuse) {
@@ -134,7 +121,7 @@ public class BombObject {
 		defuseCounter(defuseProgress);
 		defuser.asBukkitPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 5, 100));
 		
-		if (this.defuseProgress >= 50) {
+		if (this.defuseProgress >= 100) {
 			planter.asBukkitPlayer().removePotionEffect(PotionEffectType.SLOW);
 			
 			this.defuse();
@@ -151,7 +138,9 @@ public class BombObject {
 	public void attempt(DuelsPlayer player) {
 		
 		if (this.isPlanted) { return; }
+		if (player.isDead()) { return; }
 		
+		this.bombProgress++;
 		this.bombProgress++;
 		
 		if (!attemptingPlant) {
@@ -185,6 +174,7 @@ public class BombObject {
 		
 		if (this.bombProgress >= 50) {
 			planter.asBukkitPlayer().removePotionEffect(PotionEffectType.SLOW);
+			player.asBukkitPlayer().getInventory().remove(Duel.bombItemStack());
 			this.deploy();
 			
 			attemptingPlant = false;
@@ -193,6 +183,41 @@ public class BombObject {
 			//run bomb planted here.
 			
 		}
+	}
+	
+	public void drop(DuelsPlayer player) {
+		if (this.isDropped) { return; }
+		
+		this.isDropped = true;
+		for (DuelsPlayer p : this.instance.getPlayers(Team.ONE)) {
+			p.sendMessage(colorString("&c&l" + player.asBukkitPlayer().getName() + "&7 dropped the bomb!"));
+		}
+		
+		
+		Player pPlayer = player.asBukkitPlayer();
+		pPlayer.getWorld().dropItemNaturally(player.asBukkitPlayer().getLocation(), Duel.bombItemStack());
+	}
+	
+	public void pickup(DuelsPlayer player) {
+		if (!this.isDropped) { return; }
+		
+		this.isDropped = false;
+		for (DuelsPlayer p : this.instance.getPlayers(Team.ONE)) {
+			p.sendMessage(colorString("&c&l" + player.asBukkitPlayer().getName() + "&7 picked up the bomb!"));
+		}
+		
+		Player pPlayer = player.asBukkitPlayer();
+		pPlayer.getInventory().addItem(Duel.bombItemStack());
+	}
+	
+	public void hasTheBomb(DuelsPlayer player) {
+		
+		for (DuelsPlayer p : this.instance.getPlayers(Team.ONE)) {
+			p.sendMessage(colorString("&c&l" + player.asBukkitPlayer().getName() + "&7 has the bomb!"));
+		}
+		
+		Player pPlayer = player.asBukkitPlayer();
+		pPlayer.getInventory().addItem(Duel.bombItemStack());
 	}
 	
 	//rework this to be a boolean that is checked.
@@ -209,36 +234,14 @@ public class BombObject {
 		return this.bombBar;
 	}
 	
-	public boolean check() {
-		
-		if (this.planter.isDead()) {
-			Bukkit.broadcastMessage("check failed they are dead");
-			return false;
-		}
-		
-		if (this.planter == null) {
-			Bukkit.broadcastMessage("check failed the planter is null");
-			return false;
-		}
-		
-		Bukkit.broadcastMessage(BombObject.this.plantedBlock.toString());
-		if (this.planter.asBukkitPlayer().getTargetBlock(null, 5) != BombObject.this.plantedBlock) {
-			Bukkit.broadcastMessage("check failed they stopped looking at the block!");
-			return false;
-		}
-		
-		
-		return true;
-	}
-	
 	public void deploy() {
-
+		
 		this.isPlanted = true;
 		this.instance.broadcastSound("block.metal.break");
 		this.instance.broadcastMessage("&c&lBOMB HAS BEEN PLANTED!");
         
 		this.instance.setGameTime(46);
-		this.bombBar = Bukkit.createBossBar(instance.colorString("&cBomb detonates in &e&l00:" + coolCountdownFormat()), BarColor.WHITE, BarStyle.SOLID, BarFlag.DARKEN_SKY);
+		this.bombBar = Bukkit.createBossBar(Duel.colorString("&cBomb detonates in &e&l00:" + coolCountdownFormat()), BarColor.WHITE, BarStyle.SOLID, BarFlag.DARKEN_SKY);
 		
 		this.bombStand.setMarker(false);
 		
@@ -298,7 +301,7 @@ public class BombObject {
 	public void detonate() {
 		this.bombBar.removeAll();
 		
-		this.bombStand.getLocation().getWorld().createExplosion(this.bombStand.getLocation().add(0, 4, 0), 50);
+		this.bombStand.getLocation().getWorld().createExplosion(this.bombStand.getLocation().add(0, 4, 0), 50, true);
 		
 		bombStand.remove();
 		bombStand = null;
@@ -308,37 +311,37 @@ public class BombObject {
 	
 	public void defuseCounter(int progress) {
 		
-		if (progress > 0 && progress < 5) {
+		if (progress > 0 && progress < 10) {
 			sendActionBar(defuser.asBukkitPlayer(), "&eDefusing.. &c░&7░░░░░░░░░");
 			return;
-		} else if (progress >= 5 && progress < 10) {
+		} else if (progress >= 10 && progress < 20) {
 			sendActionBar(defuser.asBukkitPlayer(), "&eDefusing.. &c░░&7░░░░░░░░");
 			return;
-		} else if (progress >= 10 && progress < 15) {
+		} else if (progress >= 20 && progress < 30) {
 			sendActionBar(defuser.asBukkitPlayer(), "&eDefusing.. &c░░░&7░░░░░░░");
 			return;
-		} else if (progress >= 15 && progress < 20) {
+		} else if (progress >= 30 && progress < 40) {
 			sendActionBar(defuser.asBukkitPlayer(), "&eDefusing.. &c░░░░&7░░░░░░");
 			return;
-		} else if (progress >= 20 && progress < 25) {
+		} else if (progress >= 40 && progress < 50) {
 			sendActionBar(defuser.asBukkitPlayer(), "&eDefusing.. &c░░░░░&7░░░░░");
 			return;
-		} else if (progress >= 25 && progress < 30) {
+		} else if (progress >= 50 && progress < 60) {
 			sendActionBar(defuser.asBukkitPlayer(), "&eDefusing.. &c░░░░░░&7░░░░");
 			return;
-		} else if (progress >= 30 && progress < 35) {
+		} else if (progress >= 60 && progress < 70) {
 			sendActionBar(defuser.asBukkitPlayer(), "&eDefusing.. &c░░░░░░░&7░░░");
 			return;
-		} else if (progress >= 35 && progress < 40) {
+		} else if (progress >= 70 && progress < 80) {
 			sendActionBar(defuser.asBukkitPlayer(), "&eDefusing.. &c░░░░░░░░&7░░");
 			return;
-		} else if (progress >= 40 && progress < 45) {
+		} else if (progress >= 80 && progress < 90) {
 			sendActionBar(defuser.asBukkitPlayer(), "&eDefusing.. &c░░░░░░░░░&7░");
 			return;
-		} else if (progress >= 45 && progress < 50) {
+		} else if (progress >= 90 && progress < 100) {
 			sendActionBar(defuser.asBukkitPlayer(), "&eDefusing.. &c░░░░░░░░░░");
 			return;
-		} else if (progress == 50) {
+		} else if (progress == 100) {
 			sendActionBar(defuser.asBukkitPlayer(), "&cDefused!");
 			return;
 		}

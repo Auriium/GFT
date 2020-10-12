@@ -135,22 +135,19 @@ public class DuelController {
     					item.setType(Material.IRON_SWORD);
         				meta.setDisplayName(colorString("&7One vs One &c&lBOMB&7 - &e&l" + mapName ));
         				lore.add(colorString(""));
-        				lore.add(colorString("&7A 1 vs 1 match."));
-        				lore.add(colorString("&7Objective: Defuse the Bomb!"));
+        				lore.add(colorString("&7A 1 vs 1 Bomb match."));
         				break;
     				case TWO_V_TWO_BOMB:
     					item.setType(Material.GOLDEN_SWORD);
         				meta.setDisplayName(colorString("&7Two vs Two &c&lBOMB&7 - &e&l" + mapName ));
         				lore.add(colorString(""));
-        				lore.add(colorString("&7A 2 vs 2 match."));
-        				lore.add(colorString("&7Objective: Defuse the Bomb!"));
+        				lore.add(colorString("&7A 2 vs 2 Bomb match."));
         				break;
     				case THREE_V_THREE_BOMB:
     					item.setType(Material.DIAMOND_SWORD);
         				meta.setDisplayName(colorString("&9&lThree vs Three &c&lBOMB&7 - &e&l" + mapName ));
         				lore.add(colorString(""));
-        				lore.add(colorString("&7A 3 vs 3 match."));
-        				lore.add(colorString("&7Objective: Defuse the Bomb!"));
+        				lore.add(colorString("&7A 3 vs 3 Bomb match."));
         				break;
     				default:
     					break;

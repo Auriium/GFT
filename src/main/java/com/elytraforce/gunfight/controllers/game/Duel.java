@@ -5,6 +5,7 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -34,6 +35,7 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 @SuppressWarnings("deprecation")
 public class Duel {
@@ -91,7 +93,20 @@ public class Duel {
     public GameType.Type getType() { return type; }
     public GameType getGameType() { return this.gameType; }
     
-    public String colorString(String string) { return ChatColor.translateAlternateColorCodes('&', string); }
+    public static String colorString(String string) { return ChatColor.translateAlternateColorCodes('&', string); }
+    
+    public static ItemStack bombItemStack() {
+    	
+    	ItemStack stack = new ItemStack(Material.SHEARS, 1);
+    	ItemMeta meta = stack.getItemMeta();
+    	meta.setDisplayName(colorString("&c&lBomb"));
+    	List<String> lore = new ArrayList<String>();
+    	lore.add(colorString("&7Plant at a Bomb Site! (Red Circle)"));
+    	meta.setLore(lore);
+    	stack.setItemMeta(meta);
+    	
+    	return stack;
+    }
     
     @SuppressWarnings("unchecked")
 	public Duel(UUID uniqueId, GameType.Type type, World world, String mapName, 
@@ -164,7 +179,7 @@ public class Duel {
         
         player.setSpectatingGame(this);
         player.setSpectating(true);
-        this.spectators.add(player);
+        spectators.add(player);
         
         player.asBukkitPlayer().teleport(this.teleportLocation);
         
@@ -179,7 +194,7 @@ public class Duel {
         
         player.setSpectatingGame(null);
         player.setSpectating(false);
-        players.remove(player);
+        spectators.remove(player);
         
         ScoreboardController.get().changePlayer(player);
     }
@@ -313,12 +328,13 @@ public class Duel {
 
     public void playerRespawned(DuelsPlayer player) {
         cleanupPlayer(player, GameMode.SPECTATOR, true);
-        
     }
 
     @SuppressWarnings("deprecation")
 	public void startGame() {
         started = true;
+        
+        
         
         for (DuelsPlayer player : players) {
             player.asBukkitPlayer().removePotionEffect(PotionEffectType.BLINDNESS);
@@ -366,6 +382,18 @@ public class Duel {
 
             player.asBukkitPlayer().playSound(player.asBukkitPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, PluginConfig.getSoundVolume(), 2f);
         }
+        
+        if ((this.getType() == GameType.Type.ONE_V_ONE_BOMB || this.getType() == GameType.Type.TWO_V_TWO_BOMB || this.getType() == GameType.Type.THREE_V_THREE_BOMB)) {
+			
+        	//todo: select a random player and say they have the bomb lmfao
+        	
+        	int randomNum = ThreadLocalRandom.current().nextInt(0, this.getPlayers(Team.ONE).size());
+        	
+        	ArrayList<DuelsPlayer> playerList = new ArrayList<DuelsPlayer>();
+        	playerList.addAll(this.getPlayers(Team.ONE));
+        	this.getBomb().hasTheBomb(playerList.get(randomNum));
+    	}
+        
         this.gameStartTitle();
     }
 

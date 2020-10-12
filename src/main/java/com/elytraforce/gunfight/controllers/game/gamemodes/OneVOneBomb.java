@@ -116,7 +116,6 @@ public class OneVOneBomb implements GameType{
                     .replace("%team%", player.getTeam().getDisplayColor() + player.getTeam().getDisplayName()));
         }
         
-        //TODO: select a random red and give them bomb
 	}
 	
 	@Override

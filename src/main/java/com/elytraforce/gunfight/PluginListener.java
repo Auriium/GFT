@@ -48,59 +48,6 @@ public class PluginListener implements Listener {
         this.deathLocations = new HashMap<>();
     }
     
-   
-    @EventHandler
-    public void onTakeArmorBomb(PlayerArmorStandManipulateEvent event) {
-    	DuelsPlayer player = PlayerController.get().getDuelsPlayer(event.getPlayer());
-    	if (player.getCurrentGame() != null && player.getCurrentGame().hasStarted()) {
-    		event.setCancelled(true);
-    		return;
-    	}
-    }
-    
-    @EventHandler
-    public void onDefuseBomb(PlayerInteractAtEntityEvent event) {
-    	DuelsPlayer player = PlayerController.get().getDuelsPlayer(event.getPlayer());
-    	
-    	Duel game = null;
-    	if (player.getCurrentGame() != null) {
-    		game = player.getCurrentGame();
-    	}
-    	
-    	if (!(game.getGameType() instanceof TwoVTwoBomb) || !(game.getGameType() instanceof ThreeVThreeBomb))
-    	
-    	if (game != null && player.getCurrentGame().hasStarted()) {
-    		if (player.getTeam() == Duel.Team.TWO) {
-    			
-    			BombObject bomb = player.getCurrentGame().getBomb();
-    			
-    			if (!bomb.isBombPlanted()) { return; }
-    			
-    			if (event.getRightClicked() instanceof ArmorStand) {
-    				if (event.getRightClicked().getCustomName().equals("Bomb")) {
-            				
-            				//add 1 to the bomb counter, record it
-            				bomb.attemptDefuse(player);
-            				int oldBombProgress = bomb.getDefuseProgress();
-            				
-            				new BukkitRunnable() {
-            					public void run() {
-            						if (bomb.isDefused()) {
-            							return;
-            						}
-            						
-            						if (oldBombProgress == bomb.getDefuseProgress()) {
-            							bomb.resetDefuseProgress();
-            						}
-            					}
-            					
-            				}.runTaskLater(Main.get(), 10L);
-    				}
-    			}
-    		}
-    	}
-    }
-    
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         if (PlayerController.get().getDuelsPlayer(event.getPlayer()) == null) {
@@ -137,16 +84,6 @@ public class PluginListener implements Listener {
                 }
             }
         }
-    }
-
-    @EventHandler
-    public void onDrop(PlayerDropItemEvent event) {
-        if (NBTEditor.contains(event.getItemDrop().getItemStack(), "action")) {
-            event.setCancelled(true);
-            return;
-        }
-        if (PlayerController.get().getDuelsPlayer(event.getPlayer()).isInGame())
-            event.setCancelled(true);
     }
 
     @EventHandler

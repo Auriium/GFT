@@ -69,21 +69,36 @@ public class ScoreboardController {
  
     public List<String> getAppropriateScoreboard(DuelsPlayer player) {
         if (player.isInGame()) {
-        	if (player.getSpectatingGame().getType().equals(GameType.Type.ONE_V_ONE) || player.getSpectatingGame().getType().equals(GameType.Type.ONE_V_ONE_BOMB)) {
+            if (!player.getCurrentGame().hasStarted()) {
+                if (player.getCurrentGame().getType() == GameType.Type.ONE_V_ONE || player.getCurrentGame().getType() == GameType.Type.ONE_V_ONE_BOMB) {
+                    return preGame1v1Scoreboard;
+                } else {
+                    return preGameTeamScoreboard;
+                }
+            } else {
+                if (player.getCurrentGame().getType() == GameType.Type.ONE_V_ONE || player.getCurrentGame().getType() == GameType.Type.ONE_V_ONE_BOMB) {
                     return game1v1Scoreboard;
                 } else {
                     return gameTeamScoreboard;
                 }
+            }
+        } else if (player.isSpectating()) {
+        	if (!player.getSpectatingGame().hasStarted()) {
+                if (player.getCurrentGame().getType() == GameType.Type.ONE_V_ONE || player.getCurrentGame().getType() == GameType.Type.ONE_V_ONE_BOMB) {
+                    return preGame1v1Scoreboard;
+                } else {
+                    return preGameTeamScoreboard;
+                }
+            } else {
+                if (player.getSpectatingGame().getType() == GameType.Type.ONE_V_ONE || player.getCurrentGame().getType() == GameType.Type.ONE_V_ONE_BOMB) {
+                    return game1v1Scoreboard;
+                } else {
+                    return gameTeamScoreboard;
+                }
+            }
+        } else {
+            return spawnScoreboard;
         }
-        if (player.isSpectating()) {
-                if (player.getSpectatingGame().getType().equals(GameType.Type.ONE_V_ONE) || player.getSpectatingGame().getType().equals(GameType.Type.ONE_V_ONE_BOMB)) {
-                    return game1v1Scoreboard;
-                } else {
-                    return gameTeamScoreboard;
-                }
-
-        } 
-        return spawnScoreboard;
     }
 
     public String replaceVariables(DuelsPlayer player, String string) {
