@@ -75,7 +75,7 @@ public class Main extends JavaPlugin {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
             for (DuelsPlayer player : PlayerController.get().getPlayers()) {
                 if (player.isInDatabase())
-                    SQLStorage.get().updatePlayer(player, true);
+                    SQLStorage.get().updatePlayer(player, true);   
                 else
                     SQLStorage.get().insertPlayer(player, true);
             }
