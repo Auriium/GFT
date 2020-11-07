@@ -10,7 +10,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.ipvp.canvas.MenuFunctionListener;
 
-import com.elytraforce.gunfight.commands.DuelsCommand;
+import com.elytraforce.gunfight.commands.GFTCommand;
 import com.elytraforce.gunfight.commands.QuitCommand;
 import com.elytraforce.gunfight.config.PluginConfig;
 import com.elytraforce.gunfight.controllers.QueueController;
@@ -69,7 +69,7 @@ public class Main extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new BombListener(), this);
         Bukkit.getPluginManager().registerEvents(new MenuFunctionListener(), this);
 
-        getCommand("duels").setExecutor(new DuelsCommand());
+        getCommand("gft").setExecutor(new GFTCommand());
         getCommand("quit").setExecutor(new QuitCommand());
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {

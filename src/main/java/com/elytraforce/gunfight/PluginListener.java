@@ -168,7 +168,7 @@ public class PluginListener implements Listener {
     @EventHandler
     public void onCommand(PlayerCommandPreprocessEvent event) {
         DuelsPlayer player = PlayerController.get().getDuelsPlayer(event.getPlayer());
-        if (event.getMessage().startsWith("quit"))
+        if (event.getMessage().contains("quit"))
             return;
         if (player.isInGame() && !event.getPlayer().hasPermission("duels.admin")) {
             event.setCancelled(true);

@@ -87,7 +87,7 @@ public class KitsController {
     		}
             	Slot slot = menu.getSlot(kit.getGuiSlot());
             	//make item template
-            	slot.setItemTemplate(p -> {
+            	slot.setItemTemplate((p) -> {
             	    ItemStack item = kit.getGuiRepresentation().clone();
             	    ItemMeta itemMeta = item.getItemMeta();
             	   

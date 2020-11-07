@@ -65,6 +65,13 @@ public class QueueController {
         	    item.setItemMeta(itemMeta);
         	    return item;
         	});
+            
+            menuSlot.setClickHandler((p, info) -> {
+                ItemStack item = menuSlot.getItem(p);
+                if (NBTEditor.contains(item, "action")) {
+                    QueueController.get().processClick(PlayerController.get().getDuelsPlayer(p), NBTEditor.getString(item, "action"));
+                }
+            });
         }
         for (String key : config.getKeys(false)) {
             if (key.equals("settings") || key.equals("filler"))
@@ -91,7 +98,6 @@ public class QueueController {
     public void openQueueInventory(Player player) {
         queueMenu.open(player);
     }
-
 
     public void processClick(DuelsPlayer player, String action) {
     	GameType.Type type = getQueuePlayerIsIn(player);
@@ -136,7 +142,6 @@ public class QueueController {
     			break;
     		case "queue_cancel":
     			if (type != null) {
-                    player.sendMessage(PluginConfig.getMessage("queue-leave"));
                     removePlayerFromQueue(player, type);
                 } else {
                     player.sendMessage(PluginConfig.getMessage("not-in-queue"));
@@ -157,8 +162,6 @@ public class QueueController {
                         .replace("%queue%", actualType.getDisplayName()));
             } else {
                 removePlayerFromQueue(player, currentType);
-                player.sendMessage(PluginConfig.getMessage("queue-leave")
-                        .replace("%queue%", actualType.getDisplayName()));
                 player.sendMessage(PluginConfig.getMessage("queue-join")
                         .replace("%queue%", actualType.getDisplayName())
                         .replace("%players%", "" + (getNumberInQueue(actualType.getType()) + 1))
