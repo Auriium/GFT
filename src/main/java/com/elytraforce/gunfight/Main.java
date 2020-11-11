@@ -35,7 +35,7 @@ public class Main extends JavaPlugin {
 
     private Economy economy;
 
-    private boolean started;
+    private boolean started; 
 
     @Override
     public void onEnable() {
