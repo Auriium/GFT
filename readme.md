@@ -1,3 +1,6 @@
+# Deprecated
+- This minigame is no longer an accurate representation of my code. The server it is for is dead and the code has been deprecated and open-sourced.
+
 # Gunfight Tactics
 - An advanced team-based duel core with customizable kits
 
